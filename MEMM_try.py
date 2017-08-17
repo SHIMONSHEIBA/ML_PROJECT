@@ -31,3 +31,4 @@ class MEMM:
    def display_training_file(self):
        print("training file : ", self.trainingfile)
 
+    check
