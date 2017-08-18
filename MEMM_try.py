@@ -20,15 +20,27 @@ class MEMM:
 
    words_dict = { 'A' : 0 , 'T' : 0 , 'C' : 0 , 'G' : 0 }
 
-
    def __init__(self, trainingfile):
+
        self.trainingFile = trainingfile
-       MEMM.classVariable += 1
+       self.feature_1 = {}  # feature
+       self.feature_2 = {}  # feature
+       self.feature_3 = {}  # feature
+       self.feature_4 = {}  # feature
+       self.feature_5 = {}  # feature
+       self.feature_6 = {}  # feature
+       self.feature_7 = {}  # feature
 
-   def display_count(self):
-       print("Total MEMM instances: %d" % MEMM.classVariable)
+       self.build_features_from_train()
 
-   def display_training_file(self):
-       print("training file : ", self.trainingfile)
 
-    check
+   def build_features_from_train(self):
+
+       print("starting building features from train")
+
+       with open(self.train_file_name) as fd:
+
+
+       return
+
+
