@@ -1,6 +1,7 @@
 import time
 
 
+# TODO: CHECK SPECIAL VALUES ISSUE /N # ACROSS ALL FUNCTIONS
 
 class MEMM:
     """ Base class of modeling MEMM logic on the data"""
@@ -18,16 +19,18 @@ class MEMM:
                      'CGA' : 'Arg','CGG' : 'Arg','AGT' : 'Ser','AGC' : 'Ser','AGA' : 'Arg','AGG' : 'Arg',
                      'GGT' : 'Gly','GGC' : 'Gly','GGA' : 'Gly','GGG' : 'Gly' }
 
-    stop_keys = ['TGA','TAA', 'TAG']
+    stop_keys = ['TGA','TAA','TAG']
 
     start_keys = ['ATG']
 
-    tags_dict = {'1' : [0,'A+'] , '2' : [0,'C+'] ,'3' : [0,'G+'] , '4' : [0,'T+'] ,'5' : [0,'A-'] , '6' : [0,'C-'] ,
-                 '7' : [0,'G-'] , '8' : [0,'T-'] }
-
-    words_dict = { 'A' : 0 , 'T' : 0 , 'C' : 0 , 'G' : 0 }
+    word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8']}
 
     def __init__(self, trainingfile):
+
+        self.tags_dict = {'1': [0, 'A+'], '2': [0, 'C+'], '3': [0, 'G+'], '4': [0, 'T+'], '5': [0, 'A-'], '6': [0, 'C-'],
+                     '7': [0, 'G-'], '8': [0, 'T-']}
+
+        self.words_dict = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
 
         self.training_file = trainingfile
         self.feature_1 = {}
@@ -38,6 +41,9 @@ class MEMM:
         self.feature_6 = {}
         self.feature_7 = {}
         self.feature_8 = {}
+
+        self.features_vector = {}
+        self.features_vector_mapping = {}
 
         self.build_features_from_train()
 
@@ -144,7 +150,7 @@ class MEMM:
                                 self.feature_6[feature_6_key] = 1
                             else:
                                 self.feature_6[feature_6_key] += 1
-                    # TODO: validate words are updated per itaration
+
                     # build feature_7 of start codon before current word
                     if word_in_seq_index > 2:
                         #zero_word = word_tag_list[word_in_seq_index - 3][0]
@@ -185,8 +191,115 @@ class MEMM:
         print('finished building features in : {}'.format(time.time()-start_time))
         return
 
+    def build_features_vector(self):
+
+        features_vector_idx = 0
+        feature_instances = 0
+
+        # create first type of feature in features_vector which is word and tag instances
+        for word, tag_list in self.word_tag_dict.items():
+            for tag in tag_list:
+                key = word + '_' + tag
+                self.features_vector[key] = features_vector_idx
+                self.features_vector_mapping[features_vector_idx] = key
+                features_vector_idx += 1
+                feature_instances += 1
+        print('size of feature word and tag instances is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create second type of feature in features_vector which is instances of words
+        for word in self.words_dict.keys():
+            self.features_vector[word] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = word
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature instances of words is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create third type of feature in features_vector which is instances of tags
+        for tag in self.tags_dict.keys():
+            self.features_vector[tag] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = tag
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature instances of tags instances is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create forth type of feature in features_vector which is three tags instances
+        for three_tags in self.feature_1.keys():
+            self.features_vector[three_tags] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = three_tags
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature three tags instances is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create fifth type of feature in features_vector which is two tags instances
+        for two_tags in self.feature_2.keys():
+            self.features_vector[two_tags] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = two_tags
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature two tags instances is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create sixth type of feature in features_vector which is three words instances
+        for three_words in self.feature_3.keys():
+            self.features_vector[three_words] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = three_words
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature three words instances is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create seventh type of feature in features_vector which is amino instances
+        for amino in self.feature_4.keys():
+            self.features_vector[amino] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = amino
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature amino instances is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create eight type of feature in features_vector which is stop codon before
+        for stop_before in self.feature_5.keys():
+            self.features_vector[stop_before] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = stop_before
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature stop codon before is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create ninth type of feature in features_vector which is stop codon after
+        for stop_after in self.feature_6.keys():
+            self.features_vector[stop_after] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = stop_after
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature stop codon after is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create tenth type of feature in features_vector which is start codon before
+        for start_before in self.feature_7.keys():
+            self.features_vector[start_before] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = start_before
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature start codon before is: '.format(feature_instances))
+        feature_instances = 0
+
+        # create eleventh type of feature in features_vector which is start codon after
+        for start_after in self.feature_8.keys():
+            self.features_vector[start_after] = features_vector_idx
+            self.features_vector_mapping[features_vector_idx] = start_after
+            features_vector_idx += 1
+            feature_instances += 1
+        print('size of feature start codon after is: '.format(feature_instances))
+        feature_instances = 0
+
+        return
+
 
 if __name__ == '__main__':
-
 
     MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\training_example.csv")
