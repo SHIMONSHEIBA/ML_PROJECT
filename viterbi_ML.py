@@ -7,7 +7,7 @@ import math
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
     def __init__(self, model, mode_type, data_file, w=0):
-        # model will be HMM or MEMM object, model_type = ['hmm','memm']
+        # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.mode_type = mode_type
         self.transition_mat = model.self.transition_mat
         self.emission_mat = model.emission_mat
