@@ -44,8 +44,11 @@ class MEMM:
 
         self.features_vector = {}
         self.features_vector_mapping = {}
+        self.history_tag_feature_vector = {}
 
         self.build_features_from_train()
+        self.build_features_vector()
+        self.create_history_tag_feature_vector()
 
 
     def build_features_from_train(self):
@@ -193,6 +196,9 @@ class MEMM:
 
     def build_features_vector(self):
 
+        start_time = time.time()
+        print('starting building feature vector')
+
         features_vector_idx = 0
         feature_instances = 0
 
@@ -297,7 +303,59 @@ class MEMM:
         print('size of feature start codon after is: '.format(feature_instances))
         feature_instances = 0
 
+        print('finished building features vector in : {}'.format(time.time() - start_time))
         return
+
+
+    def create_history_tag_feature_vector(self):
+
+        start_time = time.time()
+        print('starting building history_tag_feature_vector')
+
+        with open(self.training_file) as training:
+
+            sequence_index = 1
+            for sequence in training:
+
+                word_tag_list = sequence.split(',')
+
+                print("working on sequence {} :".format(sequence_index))
+                print(word_tag_list)
+
+                # define two first word_tags for some features
+                first_tag = '#'
+                second_tag = '#'
+
+                #zero_word= ''
+                #first_word = ''
+                #second_word = ''
+                #plus_one_word = ''
+                #plus_two_word = ''
+                #plus_three_word = ''
+
+                for word_in_seq_index , word_tag in enumerate(word_tag_list):
+
+                    word_tag_tuple = word_tag.split('_')
+
+                    if '\n' in word_tag_tuple[1]:
+                        word_tag_tuple[1] = word_tag_tuple[1][:1]
+
+                    indexes = self.calculate_history_tag_indexes(first_tag, second_tag, word_in_seq_index, word_tag_tuple[1])
+
+                    self.history_tag_feature_vector[(first_tag, second_tag, word_in_seq_index), word_tag_tuple[1]] = indexes
+
+                    first_tag = second_tag
+                    second_tag = word_tag_tuple[1]
+                sequence_index +=1
+
+        print('finished building history_tag_feature_vector in : {}'.format(time.time() - start_time))
+        return
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
