@@ -22,12 +22,12 @@ class MEMM:
 
     start_keys = ['ATG']
 
-    tags_dict = {'1' : [0,'A+'] , '2' : [0,'C+'] ,'3' : [0,'G+'] , '4' : [0,'T+'] ,'5' : [0,'A-'] , '6' : [0,'C-'] ,
-                 '7' : [0,'G-'] , '8' : [0,'T-'] }
-
-    words_dict = { 'A' : 0 , 'T' : 0 , 'C' : 0 , 'G' : 0 }
-
     def __init__(self, trainingfile):
+
+        self.tags_dict = {'1': [0, 'A+'], '2': [0, 'C+'], '3': [0, 'G+'], '4': [0, 'T+'], '5': [0, 'A-'], '6': [0, 'C-'],
+                     '7': [0, 'G-'], '8': [0, 'T-']}
+
+        self.words_dict = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
 
         self.training_file = trainingfile
         self.feature_1 = {}
@@ -144,7 +144,7 @@ class MEMM:
                                 self.feature_6[feature_6_key] = 1
                             else:
                                 self.feature_6[feature_6_key] += 1
-                    # TODO: validate words are updated per itaration
+
                     # build feature_7 of start codon before current word
                     if word_in_seq_index > 2:
                         #zero_word = word_tag_list[word_in_seq_index - 3][0]
@@ -187,6 +187,5 @@ class MEMM:
 
 
 if __name__ == '__main__':
-
 
     MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\training_example.csv")
