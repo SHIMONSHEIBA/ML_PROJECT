@@ -32,6 +32,8 @@ class HMM(object):
              ['G_1']: 0, ['G_2']: 0, ['G_3']: 0, ['G_4']: 0, ['G_5']: 0, ['G_6']: 0, ['G_7']: 0, ['G_8']: 0,
              ['T_1']: 0, ['T_2']: 0, ['T_3']: 0, ['T_4']: 0, ['T_5']: 0, ['T_6']: 0, ['T_7']: 0, ['T_8']: 0}
 
+        self.word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8']}
+
         self.training_file = train_file
         self.lambda1 = lambda1
         self.lambda2 = lambda2
