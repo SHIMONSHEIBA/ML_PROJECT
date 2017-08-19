@@ -1,3 +1,6 @@
+import time
+
+
 
 class MEMM:
     """ Base class of modeling MEMM logic on the data"""
@@ -41,7 +44,8 @@ class MEMM:
 
     def build_features_from_train(self):
 
-        print("starting building features from train")
+        start_time = time.time()
+        print('starting building features from train')
 
         with open(self.training_file) as training:
 
@@ -50,7 +54,7 @@ class MEMM:
 
                 word_tag_list = sequence.split(',')
 
-                print("working on sequence %d :", sequence_index)
+                print("working on sequence {} :".format(sequence_index))
                 print(word_tag_list)
 
                 # define two first word_tags for some features
@@ -67,6 +71,9 @@ class MEMM:
                 for word_in_seq_index , word_tag in enumerate(word_tag_list):
 
                     word_tag_tuple = word_tag.split('_')
+
+                    if '\n' in word_tag_tuple[1]:
+                        word_tag_tuple[1] = word_tag_tuple[1][:1]
 
                     # count number of instances for each word in train set
                     self.words_dict[word_tag_tuple[0]] += 1
@@ -90,9 +97,9 @@ class MEMM:
                     # build feature_2 of two tags instances
                     feature_2_key = second_tag + current_tag
                     if feature_2_key not in self.feature_2:
-                        self.feature_1[feature_2_key] = 1
+                        self.feature_2[feature_2_key] = 1
                     else:
-                        self.feature_1[feature_2_key] += 1
+                        self.feature_2[feature_2_key] += 1
 
                     if word_in_seq_index > 1:
                         first_word = word_tag_list[word_in_seq_index-2][0]
@@ -173,9 +180,13 @@ class MEMM:
                     # update tags
                     first_tag = second_tag
                     second_tag = current_tag
-                    sequence_index += 1
+                sequence_index += 1
 
-
+        print('finished building features in : {}'.format(time.time()-start_time))
         return
 
 
+if __name__ == '__main__':
+
+
+    MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\training_example.csv")
