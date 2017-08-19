@@ -1,8 +1,7 @@
 
 class MEMM:
    """Base class of modeling MEMM logic on the data"""
-
-   'shared among all instances of the class'
+   # """shared among all instances of the class'
    amino_mapping = { 'TTT' : 'Phe' , 'TTC' : 'Phe','TTA' : 'Leu','TTG' : 'Leu','CTT' : 'Leu','CTC' : 'Leu',
                     'CTA' : 'Leu','CTG' : 'Leu','ATT' : 'Ile','ATC' : 'Ile','ATA' : 'Ile','ATG' : 'Met',
                     'GTT' : 'Val','GTC' : 'Val','GTA' : 'Val','GTG' : 'Val','TCT' : 'Ser','TCC' : 'Ser',
@@ -20,7 +19,7 @@ class MEMM:
 
    words_dict = { 'A' : 0 , 'T' : 0 , 'C' : 0 , 'G' : 0 }
 
-   def __init__(self, trainingfile):
+    def __init__(self, trainingfile):
 
        self.trainingFile = trainingfile
        self.feature_1 = {}  # feature
@@ -41,6 +40,6 @@ class MEMM:
        with open(self.train_file_name) as fd:
 
 
-       return
+        return
 
 

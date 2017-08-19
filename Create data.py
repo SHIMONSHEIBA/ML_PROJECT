@@ -27,16 +27,16 @@ class DataCreation:
 
         # labels dictionary:
         # gene labels
-        gene_dict_A = {u'A': '1'}
-        gene_dict_C = {u'C': '2'}
-        gene_dict_G = {u'G': '3'}
-        gene_dict_T = {u'T': '4'}
+        gene_dict_A = {u'A': 'A_1'}
+        gene_dict_C = {u'C': 'C_2'}
+        gene_dict_G = {u'G': 'G_3'}
+        gene_dict_T = {u'T': 'T_4'}
 
         # non gene labels
-        non_gene_dict_A = {u'A': '5'}
-        non_gene_dict_C = {u'C': '6'}
-        non_gene_dict_G = {u'G': '7'}
-        non_gene_dict_T = {u'T': '8'}
+        non_gene_dict_A = {u'A': 'A_5'}
+        non_gene_dict_C = {u'C': 'C_6'}
+        non_gene_dict_G = {u'G': 'G_7'}
+        non_gene_dict_T = {u'T': 'T_8'}
 
         # create label vector
         # labels = pd.DataFrame(0, index=np.arange(chrome.shape[1]))
@@ -96,8 +96,8 @@ class DataCreation:
             # create string out of the part
             chrome_part_string = chrome_part.str.cat(sep=',')
             label_part_string = label_part.str.cat(sep=',')
-            if ('1' in label_part_string) or ('2' in label_part_string) or ('3' in label_part_string) or \
-                    ('4' in label_part_string):
+            if ('A_1' in label_part_string) or ('C_2' in label_part_string) or ('G_3' in label_part_string) or \
+                    ('T_4' in label_part_string):
                 sample_label = 1
             else:
                 sample_label = -1
@@ -107,12 +107,12 @@ class DataCreation:
             index += 1
             size_sum += size
         # save split data and label to csv and all chrome data to numpy
-        np.savetxt('C:\\gitprojects\\ML project\\data\\'+file_name+'_data.csv', split_chrome[:, 0:index+1],
+        np.savetxt('C:\\gitprojects\\ML project\\data\\'+file_name+'_data.csv', split_chrome[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\\gitprojects\\ML project\\labels\\'+file_name + '_label.csv', split_label[:, 0:index+1],
+        np.savetxt('C:\\gitprojects\\ML project\\labels\\'+file_name + '_label.csv', split_label[0:index, :],
                    delimiter=",", fmt='%s')
         np.savetxt('C:\\gitprojects\\ML project\\sample_labels\\'+file_name + '_sample_label.csv',
-                   samples_label[:, 0:index + 1], delimiter=",", fmt='%i')
+                   samples_label[0:index, :], delimiter=",", fmt='%i')
         np.save('C:\\gitprojects\\ML project\\numpy\\'+file_name + '_data.npy', chrome)
         np.save('C:\\gitprojects\\ML project\\numpy\\'+file_name + '_label.npy', labels)
         t1 = time.time()

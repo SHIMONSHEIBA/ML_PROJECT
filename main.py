@@ -18,12 +18,12 @@ def main():
     cur_time = str(time.time())
 
     if os.name == 'nt':
-        train_file = '.\\data\\train.wtag'
-        test_file = '.\\data\\test.wtag'
-        comp_file = '.\\data\\comp.wtag'
-        write_file = '.\\data\\test_doc\\test_tag' + str(cur_time)
-        confusion_file = '.\\data\\confusion_matrix\\confusion_test_tag' + str(cur_time)
-        gradient_file = '.\\data\\' + str(cur_time) + '.csv'
+        train_file = '.\\NLP\\data\\train.wtag'
+        test_file = '.\\NLP\\data\\test.wtag'
+        comp_file = '.\\NLP\\data\\comp.wtag'
+        write_file = '.\\NLP\\data\\test_doc\\test_tag' + str(cur_time)
+        confusion_file = '.\\NLP\\data\\confusion_matrix\\confusion_test_tag' + str(cur_time)
+        gradient_file = '.\\NLP\\data\\' + str(cur_time) + '.csv'
     else:
         if os.name =='posix':
             train_file = './data/train.wtag'
