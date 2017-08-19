@@ -82,7 +82,7 @@ class DataCreation:
         # will be an array of the chrome split to samples
         split_chrome = np.chararray(shape=(array_shape, 1), itemsize=(2*upper)+1, unicode=True)
         # will be an array of the labels split to samples
-        split_label = np.chararray(shape=(array_shape, 1), itemsize=(2*upper)+1, unicode=True)
+        split_label = np.chararray(shape=(array_shape, 1), itemsize=(4*upper)+1, unicode=True)
         # will be an array of labels for the whole sample (seq)
         samples_label = np.empty(shape=(array_shape, 1), dtype=int)
         index = 0
@@ -107,14 +107,14 @@ class DataCreation:
             index += 1
             size_sum += size
         # save split data and label to csv and all chrome data to numpy
-        np.savetxt('C:\\gitprojects\\ML project\\data\\'+file_name+'_data.csv', split_chrome[0:index, :],
+        np.savetxt('C:\gitprojects\ML_PROJECT\\data\\'+file_name+'_data.csv', split_chrome[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\\gitprojects\\ML project\\labels\\'+file_name + '_label.csv', split_label[0:index, :],
+        np.savetxt('C:\gitprojects\ML_PROJECT\\labels\\'+file_name + '_label.csv', split_label[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\\gitprojects\\ML project\\sample_labels\\'+file_name + '_sample_label.csv',
+        np.savetxt('C:\gitprojects\ML_PROJECT\\sample_labels\\'+file_name + '_sample_label.csv',
                    samples_label[0:index, :], delimiter=",", fmt='%i')
-        np.save('C:\\gitprojects\\ML project\\numpy\\'+file_name + '_data.npy', chrome)
-        np.save('C:\\gitprojects\\ML project\\numpy\\'+file_name + '_label.npy', labels)
+        np.save('C:\gitprojects\ML_PROJECT\\numpy\\'+file_name + '_data.npy', chrome)
+        np.save('C:\gitprojects\ML_PROJECT\\numpy\\'+file_name + '_label.npy', labels)
         t1 = time.time()
         print '{}: Finish split chrome: {} and save files. The split took: {}'.\
             format(time.asctime(time.localtime(time.time())), file_name, t1-t0)

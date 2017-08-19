@@ -176,9 +176,9 @@ def main():
     evaluate_test_data = True
     feature_list = ['104']
 
-    train_file = 'C:\gitprojects\ML_PROJECT\NLP\data\\small_train.wtag'
-    test_file = 'C:\gitprojects\ML_PROJECT\NLP\data\\small_test_1.wtag'
-    comp_file = 'C:\gitprojects\ML_PROJECT\NLP\data\\comp.wtag'
+    train_file = 'C:\\gitprojects\\ML_PROJECT\\NLP\\data\\small_train.wtag'
+    test_file = 'C:\\gitprojects\\ML_PROJECT\\NLP\\data\\small_test_1.wtag'
+    comp_file = 'C:\\gitprojects\\ML_PROJECT\\NLP\\data\\comp.wtag'
 
     memm_obj = MEMM(evaluate_train_data, evaluate_test_data, feature_list, train_file, test_file, comp_file)
 
