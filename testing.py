@@ -1,20 +1,28 @@
+from itertools import product
 
+permutations_list = product('ACGT', repeat=7)
 
-features_vector = {}
-features_vector_mapping = {}
-index = 0
+permutations_list_one_t = product('ACGT', repeat=6)
+permutation_list_one = []
+for permutation in permutations_list_one_t:
+    permutation_list_one.append(''.join(permutation) + '#')
+    permutation_list_one.append('#' + ''.join(permutation))
+del (permutations_list_one_t)
 
-word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8']}
-for word, tag_list in word_tag_dict.items():
-    for tag in tag_list:
-        key = word + '_' + tag
-        features_vector[key] = index
-        features_vector_mapping[index] = key
-        index += 1
+permutations_list_two_t = product('ACGT', repeat=5)
+permutation_list_two = []
+for permutation in permutations_list_two_t:
+    permutation_list_two.append(''.join(permutation) + '##')
+    permutation_list_two.append('##' + ''.join(permutation))
+del (permutations_list_two_t)
 
+permutation_list_one += permutation_list_two
+del (permutation_list_two)
+for permutetion in permutations_list:
+    permutation_list_one.append(permutetion)
+del (permutations_list)
 
-print(features_vector)
-print(features_vector_mapping)
+print(len(permutation_list_one))
 
 
 

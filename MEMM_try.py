@@ -1,5 +1,5 @@
 import time
-
+from itertools import product
 
 # TODO: CHECK SPECIAL VALUES ISSUE /N # ACROSS ALL FUNCTIONS
 
@@ -312,41 +312,35 @@ class MEMM:
         start_time = time.time()
         print('starting building history_tag_feature_vector')
 
-        with open(self.training_file) as training:
+        permutations_list = product('ACGT', repeat=7)
 
-            sequence_index = 1
-            for sequence in training:
+        permutations_list_one_t = product('ACGT', repeat=6)
+        permutation_list_one = []
+        for permutation in permutations_list_one_t:
+            permutation_list_one.append(''.join(permutation)+'#')
+            permutation_list_one.append('#'+''.join(permutation))
+        del(permutations_list_one_t)
 
-                word_tag_list = sequence.split(',')
+        permutations_list_two_t = product('ACGT', repeat=5)
+        permutation_list_two = []
+        for permutation in permutations_list_two_t:
+            permutation_list_two.append(''.join(permutation)+'##')
+            permutation_list_two.append('##'+''.join(permutation))
+        del(permutations_list_two_t)
 
-                print("working on sequence {} :".format(sequence_index))
-                print(word_tag_list)
+        permutation_list_one += permutation_list_two
+        del(permutation_list_two)
+        for permutetion in permutations_list:
+            permutation_list_one.append(permutetion)
+        del(permutations_list)
 
-                # define two first word_tags for some features
-                first_tag = '#'
-                second_tag = '#'
 
-                #zero_word= ''
-                #first_word = ''
-                #second_word = ''
-                #plus_one_word = ''
-                #plus_two_word = ''
-                #plus_three_word = ''
+#TODO- calculate rest of keys from possible tags
 
-                for word_in_seq_index , word_tag in enumerate(word_tag_list):
+            indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, word_in_seq_index, word_tag_tuple[1])
 
-                    word_tag_tuple = word_tag.split('_')
+            self.history_tag_feature_vector[(first_tag, second_tag, word_in_seq_index), word_tag_tuple[1]] = indexes_vector
 
-                    if '\n' in word_tag_tuple[1]:
-                        word_tag_tuple[1] = word_tag_tuple[1][:1]
-
-                    indexes = self.calculate_history_tag_indexes(first_tag, second_tag, word_in_seq_index, word_tag_tuple[1])
-
-                    self.history_tag_feature_vector[(first_tag, second_tag, word_in_seq_index), word_tag_tuple[1]] = indexes
-
-                    first_tag = second_tag
-                    second_tag = word_tag_tuple[1]
-                sequence_index +=1
 
         print('finished building history_tag_feature_vector in : {}'.format(time.time() - start_time))
         return
