@@ -6,16 +6,16 @@ import math
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
-    def __init__(self, model, mode_type, data_file, w=0):
+    def __init__(self, model, model_type, data_file, w=0):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
-        self.mode_type = mode_type
+        self.model_type = model_type
         self.transition_mat = model.self.transition_mat
         self.emission_mat = model.emission_mat
         self.states = model.word_tag_dict.values()
         self.weight = w
         self.training_file = data_file
         self.word_tag_dict = model.word_tag_dict
-        if mode_type == 'memm':
+        if model_type == 'memm':
             self.history_tag_feature_vector = model.history_tag_feature_vector
         else:
             self.history_tag_feature_vector = {}
@@ -93,11 +93,11 @@ class viterbi(object):
                     calc_argmax_pi = 0
                     for w in self.possible_tags(x_k_2):
                         w_u_pi = pi[k - 1, w, u]
-                        if self.mode_type == 'hmm':  # for HMM calc q*e
+                        if self.model_type == 'hmm':  # for HMM calc q*e
                             qe = self.calc_qe(v, u, w, x_k)
                             calc_pi = w_u_pi * qe
 
-                        elif self.mode_type == 'memm':  # for MEMM calc q
+                        elif self.model_type == 'memm':  # for MEMM calc q
                             q = self.calc_q(v, u, w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 
