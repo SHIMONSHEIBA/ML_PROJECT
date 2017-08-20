@@ -107,14 +107,14 @@ class DataCreation:
             index += 1
             size_sum += size
         # save split data and label to csv and all chrome data to numpy
-        np.savetxt('C:\gitprojects\ML_PROJECT\\data\\'+file_name+'_data.csv', split_chrome[0:index, :],
+        np.savetxt('C:\\gitprojects\\ML_PROJECT\\data\\'+file_name+'_data.csv', split_chrome[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\gitprojects\ML_PROJECT\\labels\\'+file_name + '_label.csv', split_label[0:index, :],
+        np.savetxt('C:\\gitprojects\\ML_PROJECT\\labels\\'+file_name + '_label.csv', split_label[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\gitprojects\ML_PROJECT\\sample_labels\\'+file_name + '_sample_label.csv',
+        np.savetxt('C:\\gitprojects\ML_PROJECT\\sample_labels\\'+file_name + '_sample_label.csv',
                    samples_label[0:index, :], delimiter=",", fmt='%i')
-        np.save('C:\gitprojects\ML_PROJECT\\numpy\\'+file_name + '_data.npy', chrome)
-        np.save('C:\gitprojects\ML_PROJECT\\numpy\\'+file_name + '_label.npy', labels)
+        np.save('C:\\gitprojects\\ML_PROJECT\\numpy\\'+file_name + '_data.npy', chrome)
+        np.save('C:\\gitprojects\\ML_PROJECT\\numpy\\'+file_name + '_label.npy', labels)
         t1 = time.time()
         print '{}: Finish split chrome: {} and save files. The split took: {}'.\
             format(time.asctime(time.localtime(time.time())), file_name, t1-t0)

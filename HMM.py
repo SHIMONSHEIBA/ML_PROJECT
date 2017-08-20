@@ -26,11 +26,13 @@ class HMM(object):
         self.one_tags_dict = {'1': [0, 'A+'], '2': [0, 'C+'], '3': [0, 'G+'], '4': [0, 'T+'], '5': [0, 'A-'],
                               '6': [0, 'C-'], '7': [0, 'G-'], '8': [0, 'T-']}
         # number of instances of a word and a tag together
-        self.word_tag_dict =\
+        self.word_tag_dict_count =\
             {['A_1']: 0, ['A_2']: 0, ['A_3']: 0, ['A_4']: 0, ['A_5']: 0, ['A_6']: 0, ['A_7']: 0, ['A_8']: 0,
              ['C_1']: 0, ['C_2']: 0, ['C_3']: 0, ['C_4']: 0, ['C_5']: 0, ['C_6']: 0, ['C_7']: 0, ['C_8']: 0,
              ['G_1']: 0, ['G_2']: 0, ['G_3']: 0, ['G_4']: 0, ['G_5']: 0, ['G_6']: 0, ['G_7']: 0, ['G_8']: 0,
              ['T_1']: 0, ['T_2']: 0, ['T_3']: 0, ['T_4']: 0, ['T_5']: 0, ['T_6']: 0, ['T_7']: 0, ['T_8']: 0}
+
+        self.word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8']}
 
         self.training_file = train_file
         self.lambda1 = lambda1
@@ -104,7 +106,7 @@ class HMM(object):
                     self.one_tags_dict[current_tag][0] += 1
 
                     # count number of instances of a word and a tag together
-                    self.word_tag_dict[word_tag] += 1
+                    self.word_tag_dict_count[word_tag] += 1
 
                     # count number of instances of two tags together
                     two_tags = second_tag + '_' + current_tag
@@ -143,7 +145,7 @@ class HMM(object):
                 (self.lambda3 * count_third_tag / count_all_tags_instances)
 
     def create_emission_matrix(self):
-        for word_tag, count_word_tag in self.word_tag_dict.items():
+        for word_tag, count_word_tag in self.word_tag_dict_count.items():
             word_tag_list = word_tag.split('_')
             count_tag = self.one_tags_dict[word_tag_list[1]][0]
             self.emission_mat[word_tag_list[0] + '|' + word_tag_list[1]] = 1.0 * count_word_tag / count_tag
