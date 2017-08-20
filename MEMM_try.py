@@ -331,15 +331,28 @@ class MEMM:
         permutation_list_one += permutation_list_two
         del(permutation_list_two)
         for permutetion in permutations_list:
-            permutation_list_one.append(permutetion)
+            permutation_list_one.append(''.join(permutetion))
         del(permutations_list)
 
+        for permutation in permutation_list_one:
+            word_seq = list(permutation)
+            zero_word = word_seq[0]
+            first_word = word_seq[1]
+            second_word = word_seq[2]
+            current_word = word_seq[3]
+            plus_one_word = word_seq[4]
+            plus_two_word = word_seq[5]
+            plus_three_word = word_seq[6]
 
 #TODO- calculate rest of keys from possible tags
 
-            indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, word_in_seq_index, word_tag_tuple[1])
+        indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag,zero_word, first_word, second_word,
+                                                                plus_one_word, plus_two_word, plus_three_word
+                                                                current_word, current_tag)
 
-            self.history_tag_feature_vector[(first_tag, second_tag, word_in_seq_index), word_tag_tuple[1]] = indexes_vector
+        self.history_tag_feature_vector[first_tag, second_tag,zero_word, first_word, second_word,
+                                                                plus_one_word, plus_two_word, plus_three_word
+                                                                current_word, current_tag] = indexes_vector
 
 
         print('finished building history_tag_feature_vector in : {}'.format(time.time() - start_time))

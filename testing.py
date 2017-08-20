@@ -19,10 +19,11 @@ del (permutations_list_two_t)
 permutation_list_one += permutation_list_two
 del (permutation_list_two)
 for permutetion in permutations_list:
-    permutation_list_one.append(permutetion)
+    permutation_list_one.append(''.join(permutetion))
 del (permutations_list)
 
-print(len(permutation_list_one))
-
+for permutation in permutation_list_one:
+    list(permutation)
+    print(list(permutation))
 
 
