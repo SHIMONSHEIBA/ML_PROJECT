@@ -1,28 +1,14 @@
+import itertools
 from itertools import product
+import numpy as np
 
-permutations_list = product('ACGT', repeat=7)
+word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8'], '#':['#']}
 
-permutations_list_one_t = product('ACGT', repeat=6)
-permutation_list_one = []
-for permutation in permutations_list_one_t:
-    permutation_list_one.append(''.join(permutation) + '#')
-    permutation_list_one.append('#' + ''.join(permutation))
-del (permutations_list_one_t)
+feature_vector_length = 158
 
-permutations_list_two_t = product('ACGT', repeat=5)
-permutation_list_two = []
-for permutation in permutations_list_two_t:
-    permutation_list_two.append(''.join(permutation) + '##')
-    permutation_list_two.append('##' + ''.join(permutation))
-del (permutations_list_two_t)
+print(np.zeros(shape=len(word_tag_dict), dtype = int))
 
-permutation_list_one += permutation_list_two
-del (permutation_list_two)
-for permutetion in permutations_list:
-    permutation_list_one.append(permutetion)
-del (permutations_list)
-
-print(len(permutation_list_one))
+#print(np.zeros_like(np.arange(6)))
 
 
-
+#print(np.arange(3))
