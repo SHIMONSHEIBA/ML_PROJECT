@@ -51,7 +51,13 @@ class MEMM:
         # mainly for debugging and statistics
         self.features_vector_mapping = {}
 
-        # final vector for Viterbi and GA
+        # final vector for Gradient dominator
+        self.history_tag_feature_vector_train = {}
+
+        # final vector for Gradient
+        self.history_tag_feature_vector_denominator = {}
+
+        # final vector for Viterbi
         self.history_tag_feature_vector = {}
 
         # build the type of features
@@ -63,6 +69,8 @@ class MEMM:
         # creates history_tag_feature_vector
         if not history_tag_feature_vector:
             self.create_history_tag_feature_vector()
+            self.create_history_tag_feature_vector_train()
+            self.history_tag_feature_vector_denominator()
 
 
     def build_features_from_train(self):
@@ -372,19 +380,69 @@ class MEMM:
                 indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag,zero_word, first_word, second_word,
                                                                 plus_one_word, plus_two_word, plus_three_word,
                                                                     current_word, current_tag)
-                self.history_tag_feature_vector[first_tag, second_tag,zero_word, first_word, second_word,
+                self.history_tag_feature_vector[(first_tag, second_tag,zero_word, first_word, second_word,
                                                                 plus_one_word, plus_two_word, plus_three_word,
-                                                                current_word, current_tag] = indexes_vector
+                                                                current_word) , current_tag] = indexes_vector
 
         print('finished building history_tag_feature_vector in : {}'.format(time.time() - start_time))
 
         # save history_tag_feature_vector to csv
         print('writing history_tag_feature_vector to csv')
-        with open('history_tag_feature_vector.csv', 'wb') as csv_file:
+        with open('history_tag_feature_vector.csv', 'w') as csv_file:
             writer = csv.writer(csv_file)
             for key, value in self.history_tag_feature_vector.items():
                 writer.writerow([key, value])
         print('FINISHED- writing history_tag_feature_vector to csv')
+        return
+#TODO: BUILD THIS FUNCTION AND THE HISTORY OF DENOMINATOR FUNCTION AND DICTIONARY
+    def create_history_tag_feature_vector_train(self):
+
+        start_time = time.time()
+        print('starting building history_tag_feature_vector_train')
+
+        with open(self.training_file) as training:
+
+            sequence_index = 1
+            for sequence in training:
+
+                word_tag_list = sequence.split(',')
+
+                print("working on sequence {} :".format(sequence_index))
+                print(word_tag_list)
+
+                # define two first word_tags for some features
+                first_tag = '#'
+                second_tag = '#'
+
+                zero_word = '#'
+                first_word = '#'
+                second_word = '#'
+                plus_one_word = ''
+                plus_two_word = ''
+                plus_three_word = ''
+
+                for word_in_seq_index, word_tag in enumerate(word_tag_list):
+
+                    word_tag_tuple = word_tag.split('_')
+
+                    if '\n' in word_tag_tuple[1]:
+                        word_tag_tuple[1] = word_tag_tuple[1][:1]
+
+                    current_word = word_tag_tuple[0]
+                    current_tag = word_tag_tuple[1]
+                    if len(word_tag_list) - word_in_seq_index > 3:
+                        plus_one_word = word_tag_list[word_in_seq_index + 1][0]
+                        plus_two_word = word_tag_list[word_in_seq_index + 2][0]
+                        plus_three_word = word_tag_list[word_in_seq_index + 3][0]
+                    indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word, first_word,
+                                                                        second_word,
+                                                                        plus_one_word, plus_two_word, plus_three_word,
+                                                                        current_word, current_tag)
+                    self.history_tag_feature_vector_train[(first_tag, second_tag, zero_word, first_word, second_word,
+                                                     plus_one_word, plus_two_word, plus_three_word,
+                                                     current_word), current_tag] = indexes_vector
+
+
         return
 
 
@@ -395,73 +453,74 @@ class MEMM:
         indexes_vector = np.zeros(shape=len(self.features_vector), dtype = int)
 
         # first type of feature is word and tag instances
-        word_tag = current_word + '_' + current_tag
+        word_tag = 'wt' +'_' + current_word + '_' + current_tag
         if word_tag in self.features_vector:
-            feature_idx = self.features_vector['wt' +'_' +word_tag]
+            feature_idx = self.features_vector[word_tag]
             indexes_vector[feature_idx] = 1
 
         # second type of feature is word instances
-        if current_word in self.features_vector:
-            feature_idx = self.features_vector['w' +'_' +current_word]
+        if 'w'+ '_' + current_word in self.features_vector:
+            feature_idx = self.features_vector['w' + '_' + current_word]
             indexes_vector[feature_idx] = 1
 
         # third type of feature is tag instances
-        if current_tag in self.features_vector:
-            feature_idx = self.features_vector['t' +'_' +current_tag]
+        if 't' + '_' + current_tag in self.features_vector:
+            feature_idx = self.features_vector['t' + '_' + current_tag]
             indexes_vector[feature_idx] = 1
 
         # feature_1 of three tags instances
-        feature_1_key = first_tag + second_tag + current_tag
+        feature_1_key = 'f1' +'_' + first_tag + second_tag + current_tag
         if feature_1_key in self.feature_1:
-            feature_idx = self.features_vector['f1' +'_' +feature_1_key]
+            feature_idx = self.features_vector[feature_1_key]
             indexes_vector[feature_idx] = 1
 
         # feature_2 of two tags instances
-        feature_2_key = second_tag + current_tag
+        feature_2_key = 'f2' +'_' + second_tag + current_tag
         if feature_2_key in self.feature_2:
-            feature_idx = self.features_vector['f2' +'_' +feature_2_key]
+            feature_idx = self.features_vector[feature_2_key]
             indexes_vector[feature_idx] = 1
 
         # feature_3 of three words instances
-        feature_3_key = first_word + second_word + current_word
+        feature_3_key = 'f3' +'_' + first_word + second_word + current_word
         if feature_3_key in self.feature_3:
-            feature_idx = self.features_vector['f3' +'_' +feature_3_key]
+            feature_idx = self.features_vector[feature_3_key]
             indexes_vector[feature_idx] = 1
 
         # feature_4 of amino acids instances
-        if feature_3_key in self.amino_mapping.keys():
-            feature_4_key = 'f4' +'_' + self.amino_mapping[feature_3_key]
+        three_words = first_word + second_word + current_word
+        if three_words in self.amino_mapping.keys():
+            feature_4_key = 'f4' +'_' + self.amino_mapping[three_words]
             if feature_4_key in self.feature_4:
                 feature_idx = self.features_vector[feature_4_key]
                 indexes_vector[feature_idx] = 1
 
         # feature_5 of stop codon before current word
-        feature_5_key = zero_word + first_word + second_word
+        feature_5_key = 'f5' +'_' + zero_word + first_word + second_word
         if feature_5_key in self.feature_5:
-            feature_idx = self.features_vector['f5' +'_' +feature_5_key]
+            feature_idx = self.features_vector[feature_5_key]
             indexes_vector[feature_idx] = 1
 
         # feature_6 of stop codon after current word
-        feature_6_key = plus_one_word + plus_two_word + plus_three_word
+        feature_6_key = 'f6' +'_' + plus_one_word + plus_two_word + plus_three_word
         if feature_6_key in self.feature_6:
-            feature_idx = self.features_vector['f6' +'_' +feature_6_key]
+            feature_idx = self.features_vector[feature_6_key]
             indexes_vector[feature_idx] = 1
 
         # feature_7 of start codon before current word
-        feature_7_key = zero_word + first_word + second_word
+        feature_7_key = 'f7' +'_' + zero_word + first_word + second_word
         if feature_7_key in self.feature_7:
-            feature_idx = self.features_vector['f7' +'_' +feature_7_key]
+            feature_idx = self.features_vector[feature_7_key]
             indexes_vector[feature_idx] = 1
 
         # feature_8 of start codon after current word
-        feature_8_key = plus_one_word + plus_two_word + plus_three_word
+        feature_8_key = 'f8' +'_' + plus_one_word + plus_two_word + plus_three_word
         if feature_8_key in self.feature_8:
-            feature_idx = self.features_vector['f8' +'_' +feature_8_key]
+            feature_idx = self.features_vector[feature_8_key]
             indexes_vector[feature_idx] = 1
 
         # efficient representation
         indexes_vector_zip = csr_matrix(indexes_vector)
-        return indexes_vector_zip
+        return indexes_vector
 
 
 
