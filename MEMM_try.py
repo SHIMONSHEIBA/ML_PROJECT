@@ -2,6 +2,7 @@ import time
 from itertools import product
 import numpy as np
 from scipy.sparse import csr_matrix
+import csv
 
 # TODO: CHECK SPECIAL VALUES ISSUE /N # ACROSS ALL FUNCTIONS
 
@@ -27,7 +28,7 @@ class MEMM:
 
     word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8'], '#':['#']}
 
-    def __init__(self, trainingfile):
+    def __init__(self, trainingfile, history_tag_feature_vector = False ):
 
         self.tags_dict = {'1': [0, 'A+'], '2': [0, 'C+'], '3': [0, 'G+'], '4': [0, 'T+'], '5': [0, 'A-'], '6': [0, 'C-'],
                      '7': [0, 'G-'], '8': [0, 'T-']}
@@ -44,16 +45,29 @@ class MEMM:
         self.feature_7 = {}
         self.feature_8 = {}
 
+        # the dictionary that will hold all indexes for all the instances of the features
         self.features_vector = {}
+
+        # mainly for debugging and statistics
         self.features_vector_mapping = {}
+
+        # final vector for Viterbi and GA
         self.history_tag_feature_vector = {}
 
+        # build the type of features
         self.build_features_from_train()
+
+        # build the features_vector
         self.build_features_vector()
-        self.create_history_tag_feature_vector()
+
+        # creates history_tag_feature_vector
+        if not history_tag_feature_vector:
+            self.create_history_tag_feature_vector()
 
 
     def build_features_from_train(self):
+        # In this function we are counting amount of instances from
+        # each feature for statistics and feature importance
 
         start_time = time.time()
         print('starting building features from train')
@@ -101,16 +115,16 @@ class MEMM:
                     # build feature_1 of three tags instances
                     feature_1_key = first_tag + second_tag + current_tag
                     if feature_1_key not in self.feature_1:
-                        self.feature_1[feature_1_key] = 1
+                        self.feature_1['f1' +'_' + feature_1_key] = 1
                     else:
-                        self.feature_1[feature_1_key] += 1
+                        self.feature_1['f1' +'_' +feature_1_key] += 1
 
                     # build feature_2 of two tags instances
                     feature_2_key = second_tag + current_tag
                     if feature_2_key not in self.feature_2:
-                        self.feature_2[feature_2_key] = 1
+                        self.feature_2['f2' +'_' +feature_2_key] = 1
                     else:
-                        self.feature_2[feature_2_key] += 1
+                        self.feature_2['f2' +'_' +feature_2_key] += 1
 
                     if word_in_seq_index > 1:
                         first_word = word_tag_list[word_in_seq_index-2][0]
@@ -121,16 +135,16 @@ class MEMM:
                     # build feature_3 of three words instances
                     if feature_3_key:
                         if feature_3_key not in self.feature_3:
-                            self.feature_3[feature_3_key] = 1
+                            self.feature_3['f3' +'_' +feature_3_key] = 1
                         else:
-                            self.feature_3[feature_3_key] += 1
+                            self.feature_3['f3' +'_' +feature_3_key] += 1
 
                     # build feature_4 of amino acids instances
                     if feature_4_key:
                         if feature_4_key not in self.feature_4:
-                            self.feature_4[feature_4_key] = 1
+                            self.feature_4['f4' +'_' +feature_4_key] = 1
                         else:
-                            self.feature_4[feature_4_key] += 1
+                            self.feature_4['f4' +'_' +feature_4_key] += 1
 
                     # build feature_5 of stop codon before current word
                     if word_in_seq_index > 2:
@@ -140,9 +154,9 @@ class MEMM:
                         feature_5_key = zero_word + first_word + second_word
                         if feature_5_key in self.stop_keys:
                             if feature_5_key not in self.feature_5:
-                                self.feature_5[feature_5_key] = 1
+                                self.feature_5['f5' +'_' +feature_5_key] = 1
                             else:
-                                self.feature_5[feature_5_key] += 1
+                                self.feature_5['f5' +'_' +feature_5_key] += 1
 
                     # build feature_6 of stop codon after current word
                     if len(word_tag_list)-word_in_seq_index > 3:
@@ -152,9 +166,9 @@ class MEMM:
                         feature_6_key = plus_one_word + plus_two_word + plus_three_word
                         if feature_6_key in self.stop_keys:
                             if feature_6_key not in self.feature_6:
-                                self.feature_6[feature_6_key] = 1
+                                self.feature_6['f6' +'_' +feature_6_key] = 1
                             else:
-                                self.feature_6[feature_6_key] += 1
+                                self.feature_6['f6' +'_' +feature_6_key] += 1
 
                     # build feature_7 of start codon before current word
                     if word_in_seq_index > 2:
@@ -164,9 +178,9 @@ class MEMM:
                         feature_7_key = zero_word + first_word + second_word
                         if feature_7_key in self.start_keys:
                             if feature_7_key not in self.feature_7:
-                                self.feature_7[feature_7_key] = 1
+                                self.feature_7['f7' +'_' +feature_7_key] = 1
                             else:
-                                self.feature_7[feature_7_key] += 1
+                                self.feature_7['f7' +'_' +feature_7_key] += 1
 
                     # build feature_8 of start codon after current word
                     if len(word_tag_list) - word_in_seq_index > 3:
@@ -176,9 +190,9 @@ class MEMM:
                         feature_8_key = plus_one_word + plus_two_word + plus_three_word
                         if feature_8_key in self.start_keys:
                             if feature_8_key not in self.feature_8:
-                                self.feature_8[feature_8_key] = 1
+                                self.feature_8['f8' +'_' +feature_8_key] = 1
                             else:
-                                self.feature_8[feature_8_key] += 1
+                                self.feature_8['f8' +'_' +feature_8_key] += 1
 
 
                     # update words
@@ -208,29 +222,29 @@ class MEMM:
         for word, tag_list in self.word_tag_dict.items():
             for tag in tag_list:
                 key = word + '_' + tag
-                self.features_vector[key] = features_vector_idx
+                self.features_vector['wt' +'_' +key] = features_vector_idx
                 self.features_vector_mapping[features_vector_idx] = key
                 features_vector_idx += 1
                 feature_instances += 1
-        print('size of feature word and tag instances is: '.format(feature_instances))
+        print('size of feature word and tag instances is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create second type of feature in features_vector which is instances of words
         for word in self.words_dict.keys():
-            self.features_vector[word] = features_vector_idx
+            self.features_vector['w' +'_' +word] = features_vector_idx
             self.features_vector_mapping[features_vector_idx] = word
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature instances of words is: '.format(feature_instances))
+        print('size of feature instances of words is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create third type of feature in features_vector which is instances of tags
         for tag in self.tags_dict.keys():
-            self.features_vector[tag] = features_vector_idx
+            self.features_vector['t' +'_' +tag] = features_vector_idx
             self.features_vector_mapping[features_vector_idx] = tag
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature instances of tags instances is: '.format(feature_instances))
+        print('size of feature instances of tags instances is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create forth type of feature in features_vector which is three tags instances
@@ -239,7 +253,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = three_tags
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature three tags instances is: '.format(feature_instances))
+        print('size of feature three tags instances is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create fifth type of feature in features_vector which is two tags instances
@@ -248,7 +262,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = two_tags
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature two tags instances is: '.format(feature_instances))
+        print('size of feature two tags instances is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create sixth type of feature in features_vector which is three words instances
@@ -257,7 +271,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = three_words
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature three words instances is: '.format(feature_instances))
+        print('size of feature three words instances is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create seventh type of feature in features_vector which is amino instances
@@ -266,7 +280,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = amino
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature amino instances is: '.format(feature_instances))
+        print('size of feature amino instances is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create eight type of feature in features_vector which is stop codon before
@@ -275,7 +289,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = stop_before
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature stop codon before is: '.format(feature_instances))
+        print('size of feature stop codon before is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create ninth type of feature in features_vector which is stop codon after
@@ -284,7 +298,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = stop_after
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature stop codon after is: '.format(feature_instances))
+        print('size of feature stop codon after is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create tenth type of feature in features_vector which is start codon before
@@ -293,7 +307,7 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = start_before
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature start codon before is: '.format(feature_instances))
+        print('size of feature start codon before is: {}'.format(feature_instances))
         feature_instances = 0
 
         # create eleventh type of feature in features_vector which is start codon after
@@ -302,10 +316,11 @@ class MEMM:
             self.features_vector_mapping[features_vector_idx] = start_after
             features_vector_idx += 1
             feature_instances += 1
-        print('size of feature start codon after is: '.format(feature_instances))
+        print('size of feature start codon after is: {}'.format(feature_instances))
         feature_instances = 0
 
         print('finished building features vector in : {}'.format(time.time() - start_time))
+
         return
 
 
@@ -361,8 +376,15 @@ class MEMM:
                                                                 plus_one_word, plus_two_word, plus_three_word,
                                                                 current_word, current_tag] = indexes_vector
 
-
         print('finished building history_tag_feature_vector in : {}'.format(time.time() - start_time))
+
+        # save history_tag_feature_vector to csv
+        print('writing history_tag_feature_vector to csv')
+        with open('history_tag_feature_vector.csv', 'wb') as csv_file:
+            writer = csv.writer(csv_file)
+            for key, value in self.history_tag_feature_vector.items():
+                writer.writerow([key, value])
+        print('FINISHED- writing history_tag_feature_vector to csv')
         return
 
 
@@ -375,65 +397,66 @@ class MEMM:
         # first type of feature is word and tag instances
         word_tag = current_word + '_' + current_tag
         if word_tag in self.features_vector:
-            feature_idx = self.features_vector[word_tag]
+            feature_idx = self.features_vector['wt' +'_' +word_tag]
             indexes_vector[feature_idx] = 1
 
         # second type of feature is word instances
         if current_word in self.features_vector:
-            feature_idx = self.features_vector[current_word]
+            feature_idx = self.features_vector['w' +'_' +current_word]
             indexes_vector[feature_idx] = 1
 
         # third type of feature is tag instances
         if current_tag in self.features_vector:
-            feature_idx = self.features_vector[current_tag]
+            feature_idx = self.features_vector['t' +'_' +current_tag]
             indexes_vector[feature_idx] = 1
 
         # feature_1 of three tags instances
         feature_1_key = first_tag + second_tag + current_tag
         if feature_1_key in self.feature_1:
-            feature_idx = self.features_vector[feature_1_key]
+            feature_idx = self.features_vector['f1' +'_' +feature_1_key]
             indexes_vector[feature_idx] = 1
 
-        # build feature_2 of two tags instances
+        # feature_2 of two tags instances
         feature_2_key = second_tag + current_tag
         if feature_2_key in self.feature_2:
-            feature_idx = self.features_vector[feature_2_key]
+            feature_idx = self.features_vector['f2' +'_' +feature_2_key]
             indexes_vector[feature_idx] = 1
 
         # feature_3 of three words instances
         feature_3_key = first_word + second_word + current_word
         if feature_3_key in self.feature_3:
-            feature_idx = self.features_vector[feature_3_key]
+            feature_idx = self.features_vector['f3' +'_' +feature_3_key]
             indexes_vector[feature_idx] = 1
 
         # feature_4 of amino acids instances
-        feature_4_key = self.amino_mapping[feature_3_key]
-        if feature_4_key in self.feature_4:
-            feature_idx = self.features_vector[feature_4_key]
-            indexes_vector[feature_idx] = 1
+        if feature_3_key in self.amino_mapping.keys():
+            feature_4_key = 'f4' +'_' + self.amino_mapping[feature_3_key]
+            if feature_4_key in self.feature_4:
+                feature_idx = self.features_vector[feature_4_key]
+                indexes_vector[feature_idx] = 1
 
         # feature_5 of stop codon before current word
         feature_5_key = zero_word + first_word + second_word
         if feature_5_key in self.feature_5:
-            feature_idx = self.features_vector[feature_5_key]
+            feature_idx = self.features_vector['f5' +'_' +feature_5_key]
             indexes_vector[feature_idx] = 1
 
         # feature_6 of stop codon after current word
         feature_6_key = plus_one_word + plus_two_word + plus_three_word
         if feature_6_key in self.feature_6:
-            feature_idx = self.features_vector[feature_6_key]
+            feature_idx = self.features_vector['f6' +'_' +feature_6_key]
             indexes_vector[feature_idx] = 1
 
         # feature_7 of start codon before current word
         feature_7_key = zero_word + first_word + second_word
         if feature_7_key in self.feature_7:
-            feature_idx = self.features_vector[feature_7_key]
+            feature_idx = self.features_vector['f7' +'_' +feature_7_key]
             indexes_vector[feature_idx] = 1
 
         # feature_8 of start codon after current word
         feature_8_key = plus_one_word + plus_two_word + plus_three_word
         if feature_8_key in self.feature_8:
-            feature_idx = self.features_vector[feature_8_key]
+            feature_idx = self.features_vector['f8' +'_' +feature_8_key]
             indexes_vector[feature_idx] = 1
 
         # efficient representation
@@ -444,4 +467,4 @@ class MEMM:
 
 if __name__ == '__main__':
 
-    MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\training_example.csv")
+    MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\chr1_label.csv")
