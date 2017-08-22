@@ -388,12 +388,11 @@ class MEMM:
             feature_idx = self.features_vector[current_tag]
             indexes_vector[feature_idx] = 1
 
-        #feature_1 of three tags instances
+        # feature_1 of three tags instances
         feature_1_key = first_tag + second_tag + current_tag
         if feature_1_key in self.feature_1:
             feature_idx = self.features_vector[feature_1_key]
             indexes_vector[feature_idx] = 1
-
 
         # build feature_2 of two tags instances
         feature_2_key = second_tag + current_tag
@@ -401,76 +400,43 @@ class MEMM:
             feature_idx = self.features_vector[feature_2_key]
             indexes_vector[feature_idx] = 1
 
-#TODO: CONTINUE FROM HERE
-        if word_in_seq_index > 1:
-            first_word = word_tag_list[word_in_seq_index - 2][0]
-            second_word = word_tag_list[word_in_seq_index - 1][0]
-            feature_3_key = first_word + second_word + current_word
-            feature_4_key = self.amino_mapping[feature_3_key]
+        # feature_3 of three words instances
+        feature_3_key = first_word + second_word + current_word
+        if feature_3_key in self.feature_3:
+            feature_idx = self.features_vector[feature_3_key]
+            indexes_vector[feature_idx] = 1
 
-        # build feature_3 of three words instances
-        if feature_3_key:
-            if feature_3_key not in self.feature_3:
-                self.feature_3[feature_3_key] = 1
-            else:
-                self.feature_3[feature_3_key] += 1
+        # feature_4 of amino acids instances
+        feature_4_key = self.amino_mapping[feature_3_key]
+        if feature_4_key in self.feature_4:
+            feature_idx = self.features_vector[feature_4_key]
+            indexes_vector[feature_idx] = 1
 
-        # build feature_4 of amino acids instances
-        if feature_4_key:
-            if feature_4_key not in self.feature_4:
-                self.feature_4[feature_4_key] = 1
-            else:
-                self.feature_4[feature_4_key] += 1
+        # feature_5 of stop codon before current word
+        feature_5_key = zero_word + first_word + second_word
+        if feature_5_key in self.feature_5:
+            feature_idx = self.features_vector[feature_5_key]
+            indexes_vector[feature_idx] = 1
 
-        # build feature_5 of stop codon before current word
-        if word_in_seq_index > 2:
-            zero_word = word_tag_list[word_in_seq_index - 3][0]
-            # first_word = word_tag_list[word_in_seq_index-2][0]
-            # second_word = word_tag_list[word_in_seq_index-1][0]
-            feature_5_key = zero_word + first_word + second_word
-            if feature_5_key in self.stop_keys:
-                if feature_5_key not in self.feature_5:
-                    self.feature_5[feature_5_key] = 1
-                else:
-                    self.feature_5[feature_5_key] += 1
+        # feature_6 of stop codon after current word
+        feature_6_key = plus_one_word + plus_two_word + plus_three_word
+        if feature_6_key in self.feature_6:
+            feature_idx = self.features_vector[feature_6_key]
+            indexes_vector[feature_idx] = 1
 
-        # build feature_6 of stop codon after current word
-        if len(word_tag_list) - word_in_seq_index > 3:
-            plus_one_word = word_tag_list[word_in_seq_index + 1][0]
-            plus_two_word = word_tag_list[word_in_seq_index + 2][0]
-            plus_three_word = word_tag_list[word_in_seq_index + 3][0]
-            feature_6_key = plus_one_word + plus_two_word + plus_three_word
-            if feature_6_key in self.stop_keys:
-                if feature_6_key not in self.feature_6:
-                    self.feature_6[feature_6_key] = 1
-                else:
-                    self.feature_6[feature_6_key] += 1
+        # feature_7 of start codon before current word
+        feature_7_key = zero_word + first_word + second_word
+        if feature_7_key in self.feature_7:
+            feature_idx = self.features_vector[feature_7_key]
+            indexes_vector[feature_idx] = 1
 
-        # build feature_7 of start codon before current word
-        if word_in_seq_index > 2:
-            # zero_word = word_tag_list[word_in_seq_index - 3][0]
-            # first_word = word_tag_list[word_in_seq_index-2][0]
-            # second_word = word_tag_list[word_in_seq_index-1][0]
-            feature_7_key = zero_word + first_word + second_word
-            if feature_7_key in self.start_keys:
-                if feature_7_key not in self.feature_7:
-                    self.feature_7[feature_7_key] = 1
-                else:
-                    self.feature_7[feature_7_key] += 1
+        # feature_8 of start codon after current word
+        feature_8_key = plus_one_word + plus_two_word + plus_three_word
+        if feature_8_key in self.feature_8:
+            feature_idx = self.features_vector[feature_8_key]
+            indexes_vector[feature_idx] = 1
 
-        # build feature_8 of start codon after current word
-        if len(word_tag_list) - word_in_seq_index > 3:
-            # plus_one_word = word_tag_list[word_in_seq_index + 1][0]
-            # plus_two_word = word_tag_list[word_in_seq_index + 2][0]
-            # plus_three_word = word_tag_list[word_in_seq_index + 3][0]
-            feature_8_key = plus_one_word + plus_two_word + plus_three_word
-            if feature_8_key in self.start_keys:
-                if feature_8_key not in self.feature_8:
-                    self.feature_8[feature_8_key] = 1
-                else:
-                    self.feature_8[feature_8_key] += 1
-
-
+        # efficient representation
         indexes_vector_zip = csr_matrix(indexes_vector)
         return indexes_vector_zip
 
