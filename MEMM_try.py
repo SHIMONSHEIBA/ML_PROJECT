@@ -4,7 +4,6 @@ import numpy as np
 from scipy.sparse import csr_matrix
 import csv
 
-# TODO: CHECK SPECIAL VALUES ISSUE /N # ACROSS ALL FUNCTIONS
 
 class MEMM:
     """ Base class of modeling MEMM logic on the data"""
@@ -54,7 +53,7 @@ class MEMM:
         # final vector for Gradient dominator
         self.history_tag_feature_vector_train = {}
 
-        # final vector for Gradient
+        # final vector for Gradient denominator
         self.history_tag_feature_vector_denominator = {}
 
         # final vector for Viterbi
@@ -394,7 +393,7 @@ class MEMM:
                 writer.writerow([key, value])
         print('FINISHED- writing history_tag_feature_vector to csv')
         return
-#TODO: BUILD THIS FUNCTION AND THE HISTORY OF DENOMINATOR FUNCTION AND DICTIONARY
+
     def create_history_tag_feature_vector_train(self):
 
         start_time = time.time()
@@ -410,7 +409,7 @@ class MEMM:
                 print("working on sequence {} :".format(sequence_index))
                 print(word_tag_list)
 
-                # define two first word_tags for some features
+                # define three first word_tags for some features
                 first_tag = '#'
                 second_tag = '#'
 
@@ -420,6 +419,7 @@ class MEMM:
                 plus_one_word = ''
                 plus_two_word = ''
                 plus_three_word = ''
+                more_than_3 = True
 
                 for word_in_seq_index, word_tag in enumerate(word_tag_list):
 
@@ -430,10 +430,17 @@ class MEMM:
 
                     current_word = word_tag_tuple[0]
                     current_tag = word_tag_tuple[1]
-                    if len(word_tag_list) - word_in_seq_index > 3:
+                    if len(word_tag_list) - word_in_seq_index > 3 :
                         plus_one_word = word_tag_list[word_in_seq_index + 1][0]
                         plus_two_word = word_tag_list[word_in_seq_index + 2][0]
                         plus_three_word = word_tag_list[word_in_seq_index + 3][0]
+                    elif more_than_3:
+                        plus_one_word = word_tag_list[word_in_seq_index + 1][0]
+                        plus_two_word = word_tag_list[word_in_seq_index + 2][0]
+                        plus_three_word = '#'
+                        more_than_3 = False
+
+
                     indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word, first_word,
                                                                         second_word,
                                                                         plus_one_word, plus_two_word, plus_three_word,
@@ -441,11 +448,103 @@ class MEMM:
                     self.history_tag_feature_vector_train[(first_tag, second_tag, zero_word, first_word, second_word,
                                                      plus_one_word, plus_two_word, plus_three_word,
                                                      current_word), current_tag] = indexes_vector
+                    first_tag = second_tag
+                    second_tag = current_tag
+                    zero_word = first_word
+                    first_word = second_word
+                    second_word = current_word
+                    if not more_than_3:
+                        plus_one_word = plus_two_word
+                        plus_two_word = plus_three_word
 
+                sequence_index += 1
+
+        print('finished building history_tag_feature_vector_train in : {}'.format(time.time() - start_time))
+        # save history_tag_feature_vector_train to csv
+        print('writing history_tag_feature_vector_train to csv')
+        with open('history_tag_feature_vector_train.csv', 'w') as csv_file:
+            writer = csv.writer(csv_file)
+            for key, value in self.history_tag_feature_vector_train.items():
+                writer.writerow([key, value])
+        print('FINISHED- writing history_tag_feature_vector_train to csv')
 
         return
 
+    def history_tag_feature_vector_denominator(self):
 
+        start_time = time.time()
+        print('starting building history_tag_feature_vector_denominator')
+
+        with open(self.training_file) as training:
+
+            sequence_index = 1
+            for sequence in training:
+
+                word_tag_list = sequence.split(',')
+
+                print("working on sequence {} :".format(sequence_index))
+                print(word_tag_list)
+
+                # define three first word_tags for some features
+                first_tag = '#'
+                second_tag = '#'
+
+                zero_word = '#'
+                first_word = '#'
+                second_word = '#'
+                plus_one_word = ''
+                plus_two_word = ''
+                plus_three_word = ''
+                more_than_3 = True
+
+                for word_in_seq_index, word_tag in enumerate(word_tag_list):
+
+                    word_tag_tuple = word_tag.split('_')
+
+                    if '\n' in word_tag_tuple[1]:
+                        word_tag_tuple[1] = word_tag_tuple[1][:1]
+
+                    current_word = word_tag_tuple[0]
+                    #current_tag = word_tag_tuple[1]
+                    if len(word_tag_list) - word_in_seq_index > 3:
+                        plus_one_word = word_tag_list[word_in_seq_index + 1][0]
+                        plus_two_word = word_tag_list[word_in_seq_index + 2][0]
+                        plus_three_word = word_tag_list[word_in_seq_index + 3][0]
+                    elif more_than_3:
+                        plus_one_word = word_tag_list[word_in_seq_index + 1][0]
+                        plus_two_word = word_tag_list[word_in_seq_index + 2][0]
+                        plus_three_word = '#'
+                        more_than_3 = False
+
+                    for possible_tag_of_current_word in self.word_tag_dict[current_word]:
+                        indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word, first_word,
+                                                                        second_word,
+                                                                        plus_one_word, plus_two_word, plus_three_word,
+                                                                        current_word, possible_tag_of_current_word)
+                        self.history_tag_feature_vector_denominator[(first_tag, second_tag, zero_word, first_word, second_word,
+                                                           plus_one_word, plus_two_word, plus_three_word,
+                                                           current_word), possible_tag_of_current_word] = indexes_vector
+                    first_tag = second_tag
+                    second_tag = word_tag_tuple[1]
+                    zero_word = first_word
+                    first_word = second_word
+                    second_word = current_word
+                    if not more_than_3:
+                        plus_one_word = plus_two_word
+                        plus_two_word = plus_three_word
+
+                sequence_index += 1
+
+        print('finished building history_tag_feature_vector_denominator in : {}'.format(time.time() - start_time))
+        # save history_tag_feature_vector_train to csv
+        print('writing history_tag_feature_vector_denominator to csv')
+        with open('history_tag_feature_vector_denominator.csv', 'w') as csv_file:
+            writer = csv.writer(csv_file)
+            for key, value in self.history_tag_feature_vector_denominator.items():
+                writer.writerow([key, value])
+        print('FINISHED- writing history_tag_feature_vector_denominator to csv')
+
+        return
 
     def calculate_history_tag_indexes(self, first_tag, second_tag,zero_word, first_word, second_word,
                                                                 plus_one_word, plus_two_word, plus_three_word,
