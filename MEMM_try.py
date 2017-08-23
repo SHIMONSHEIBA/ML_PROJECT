@@ -69,7 +69,7 @@ class MEMM:
         if not history_tag_feature_vector:
             self.create_history_tag_feature_vector()
             self.create_history_tag_feature_vector_train()
-            self.history_tag_feature_vector_denominator()
+            self.create_history_tag_feature_vector_denominator()
 
 
     def build_features_from_train(self):
@@ -470,7 +470,7 @@ class MEMM:
 
         return
 
-    def history_tag_feature_vector_denominator(self):
+    def create_history_tag_feature_vector_denominator(self):
 
         start_time = time.time()
         print('starting building history_tag_feature_vector_denominator')
@@ -619,10 +619,10 @@ class MEMM:
 
         # efficient representation
         indexes_vector_zip = csr_matrix(indexes_vector)
-        return indexes_vector
+        return indexes_vector_zip
 
 
 
 if __name__ == '__main__':
 
-    MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\chr1_label.csv")
+    MEMM = MEMM("C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\labels\\chr4_label.csv")
