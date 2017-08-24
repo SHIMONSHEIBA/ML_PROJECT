@@ -76,8 +76,8 @@ class DataCreation:
         # split chrome and label to samples
         chrome_size = chrome.shape[1]
         size_sum = 0  # will be the sum of the sizes of parts
-        lower = 800  # lower bound to random
-        upper = 1200  # upper bound to random
+        lower = 150  # lower bound to random
+        upper = 250  # upper bound to random
         array_shape = int(math.ceil(1.0*chrome_size/lower))  # maximum size of array of samples
         # will be an array of the chrome split to samples
         split_chrome = np.chararray(shape=(array_shape, 1), itemsize=(2*upper)+1, unicode=True)
@@ -107,11 +107,11 @@ class DataCreation:
             index += 1
             size_sum += size
         # save split data and label to csv and all chrome data to numpy
-        np.savetxt('C:\\gitprojects\\ML_PROJECT\\data\\'+file_name+'_data.csv', split_chrome[0:index, :],
+        np.savetxt('C:\\gitprojects\\ML_PROJECT\\data150\\'+file_name+'_data.csv', split_chrome[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\\gitprojects\\ML_PROJECT\\labels\\'+file_name + '_label.csv', split_label[0:index, :],
+        np.savetxt('C:\\gitprojects\\ML_PROJECT\\labels150\\'+file_name + '_label.csv', split_label[0:index, :],
                    delimiter=",", fmt='%s')
-        np.savetxt('C:\\gitprojects\ML_PROJECT\\sample_labels\\'+file_name + '_sample_label.csv',
+        np.savetxt('C:\\gitprojects\ML_PROJECT\\sample_labels150\\'+file_name + '_sample_label.csv',
                    samples_label[0:index, :], delimiter=",", fmt='%i')
         np.save('C:\\gitprojects\\ML_PROJECT\\numpy\\'+file_name + '_data.npy', chrome)
         np.save('C:\\gitprojects\\ML_PROJECT\\numpy\\'+file_name + '_label.npy', labels)

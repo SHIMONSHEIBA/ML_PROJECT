@@ -6,7 +6,7 @@ import itertools
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
-    def __init__(self, model, model_type, data_file, is_log, w=0):
+    def __init__(self, model, model_type, data_file, is_log, use_stop_prob, w=0):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.model_type = model_type
         self.transition_mat = model.transition_mat
@@ -15,6 +15,7 @@ class viterbi(object):
         self.weight = w
         self.training_file = data_file
         self.word_tag_dict = model.word_tag_dict
+        self.use_stop_prob = use_stop_prob
         if model_type == 'memm':
             self.history_tag_feature_vector = model.history_tag_feature_vector
         else:
@@ -27,9 +28,9 @@ class viterbi(object):
 
         with open(self.training_file) as training:
             sequence_index = 0
-            print '{}: Start viterbi on sequence index {}'.\
-                format(time.asctime(time.localtime(time.time())), sequence_index)
             for sequence in training:
+                print '{}: Start viterbi on sequence index {}'. \
+                    format(time.asctime(time.localtime(time.time())), sequence_index)
                 viterbi_result = self.viterbi_sequence(sequence)
                 seq_word_tag_predict = []
                 word_tag_list = sequence.split(',')
@@ -40,11 +41,11 @@ class viterbi(object):
                     prediction = str(word + '_' + str(tag))
                     seq_word_tag_predict.append(prediction)
                 predict_dict[sequence_index] = seq_word_tag_predict
-                print '{}: prediction for sequence index {} is: {}'.format((time.asctime(time.localtime(time.time()))),
-                                                                           sequence_index, seq_word_tag_predict)
+                # print '{}: prediction for sequence index {} is: {}'.format((time.asctime(time.localtime(time.time()))),
+                #                                                            sequence_index, seq_word_tag_predict)
                 sequence_index += 1
-            print '{}: prediction for all sequences{}'.format((time.asctime(time.localtime(time.time()))),
-                                                              predict_dict)
+            # print '{}: prediction for all sequences{}'.format((time.asctime(time.localtime(time.time()))),
+            #                                                   predict_dict)
         return predict_dict
 
     def viterbi_sequence(self, sequence):
@@ -106,6 +107,9 @@ class viterbi(object):
                             q = self.calc_q(v, u, w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 
+                        else:
+                            print 'Error: model_type is not in [memm, hmm]'
+
                         if calc_pi > calc_max_pi:
                             calc_max_pi = calc_pi
                             calc_argmax_pi = int(w)
@@ -118,19 +122,48 @@ class viterbi(object):
 
         # print pi[n]
         # print bp[n]
-        u = np.unravel_index(pi[n].argmax(), pi[n].shape)[0]  # argmax for u in n-1
-        v = np.unravel_index(pi[n].argmax(), pi[n].shape)[1]  # argmax for v in n
+        if self.model_type == 'hmm' and self.use_stop_prob:
+            stop_p_array = np.ones(shape=(num_states, num_states), dtype=float) * float("-inf")
+            x_n_1 = word_tag_list[n - 2].split('_')[0]
+            x_n = word_tag_list[n - 1].split('_')[0]
+            for u in self.possible_tags(x_n_1):
+                for v in self.possible_tags(x_n):
+                    u_v_pi = pi[n, int(u), int(v)]
+                    transition_stop = self.transition_mat['#' + '|' + u + ',' + v]
+                    stop_p = u_v_pi * transition_stop
+                    stop_p_array[int(u), int(v)] = stop_p
 
-        if v == -1 or u == -1:
-            print 'Error: v or u value is -1'
+            u = np.unravel_index(stop_p_array.argmax(), stop_p_array.shape)[0]  # argmax for u in n-1
+            v = np.unravel_index(stop_p_array.argmax(), stop_p_array.shape)[1]  # argmax for v in n
 
-        seq_word_tag_predict[n - 1] = v
-        seq_word_tag_predict[n - 2] = u
+            if v == -1 or u == -1:
+                print 'Error: v or u value is -1'
 
-        for k in range(n-2, 0, -1):
-            seq_word_tag_predict[k - 1] = bp[k+2, seq_word_tag_predict[k], seq_word_tag_predict[k+1]]
+            seq_word_tag_predict[n - 1] = v
+            seq_word_tag_predict[n - 2] = u
 
-        return seq_word_tag_predict
+            for k in range(n - 2, 0, -1):
+                seq_word_tag_predict[k - 1] = bp[k + 2, seq_word_tag_predict[k], seq_word_tag_predict[k + 1]]
+
+            return seq_word_tag_predict
+
+        elif self.model_type == 'memm' or self.use_stop_prob is False:
+            u = np.unravel_index(pi[n].argmax(), pi[n].shape)[0]  # argmax for u in n-1
+            v = np.unravel_index(pi[n].argmax(), pi[n].shape)[1]  # argmax for v in n
+
+            if v == -1 or u == -1:
+                print 'Error: v or u value is -1'
+
+            seq_word_tag_predict[n - 1] = v
+            seq_word_tag_predict[n - 2] = u
+
+            for k in range(n-2, 0, -1):
+                seq_word_tag_predict[k - 1] = bp[k+2, seq_word_tag_predict[k], seq_word_tag_predict[k+1]]
+
+            return seq_word_tag_predict
+
+        else:
+            print 'Error: model_type is not in [memm, hmm]'
 
     def possible_tags(self, word):
         if word == '#':
@@ -157,7 +190,7 @@ class viterbi(object):
         for tag in self.word_tag_dict.get(x_k):  # all possible tags for the word x_k
             # history + tag feature vector
             current_history_tag_feature_vector = self.history_tag_feature_vector[(w, u, x_k_3, x_k_2, x_k_1,
-                                                                                  x_k_p_3, x_k_p_2, x_k_p_1, x_k, tag)]
+                                                                                  x_k_p_3, x_k_p_2, x_k_p_1, x_k), tag]
             # calculate e^(weight*f(history, tag))
             numerators = math.exp(current_history_tag_feature_vector.dot(self.weight))
             sum_denominator += numerators  # sum for the denominator
