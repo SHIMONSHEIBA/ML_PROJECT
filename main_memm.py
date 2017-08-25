@@ -21,7 +21,7 @@ def main():
     memm = MEMM(chrome_train_list)
 
     gradient_class = Gradient(memm=memm, lamda=1)
-    gradient_result = gradient_class.gradientDescent()
+    gradient_result = gradient_class.gradient_descent()
     weights = gradient_result.x
     #np.savetxt(gradient_file, weights, delimiter=",")
 
