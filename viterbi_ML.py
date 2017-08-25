@@ -33,11 +33,14 @@ class viterbi(object):
         with open(self.training_file) as training:
             sequence_index = 0
             for sequence in training:
-                print('{}: Start viterbi on sequence index {}'. \
-                    format(time.asctime(time.localtime(time.time())), sequence_index))
+                print('{}: Start viterbi on sequence index {}: \n {}'. \
+                    format(time.asctime(time.localtime(time.time())), sequence_index, sequence))
                 viterbi_result = self.viterbi_sequence(sequence)
                 seq_word_tag_predict = []
                 word_tag_list = sequence.split(',')
+                if '\n' in word_tag_list:
+                    word_tag_list.remove('\n')
+                word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1][:1]
                 for idx_tag, tag in viterbi_result.iteritems():
                     if tag == 0 or tag == '0' or tag == -1 or tag == '-1':
                         print('Error: tag is: {}'.format(tag))
@@ -120,6 +123,11 @@ class viterbi(object):
                                 memm_w = '#'
                             else:
                                 memm_w = w
+                            print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
+                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1,
+                                                                          x_k_p_3, x_k_p_2, x_k_p_1, x_k))
+                            if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '':
+                                reut = 1
                             q = self.calc_q(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 
@@ -206,7 +214,7 @@ class viterbi(object):
         for tag in self.word_tag_dict.get(x_k):  # all possible tags for the word x_k
             # history + tag feature vector
             current_history_tag_feature_vector = self.history_tag_feature_vector[(w, u, x_k_3, x_k_2, x_k_1,
-                                                                                  x_k_p_3, x_k_p_2, x_k_p_1, x_k), tag]
+                                                                                  x_k_p_1, x_k_p_2, x_k_p_3, x_k), tag]
             # calculate e^(weight*f(history, tag))
             numerators = math.exp(current_history_tag_feature_vector.dot(self.weight))
             sum_denominator += numerators  # sum for the denominator
