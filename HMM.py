@@ -3,6 +3,7 @@ from itertools import product
 import itertools
 import csv
 import numpy as np
+import logging
 
 
 class HMM(object):
@@ -60,10 +61,18 @@ class HMM(object):
             self.create_transition_matrix()
             print self.transition_mat_array
             print np.sum(self.transition_mat_array, axis=2)
+            logging.info('{}: using smoothing: {}'.format(time.asctime(time.localtime(time.time())), is_smooth))
+            logging.info('{}: sum of rows in transition matrix is: \n {}'.
+                         format(time.asctime(time.localtime(time.time())),
+                                np.sum(self.transition_mat_array, axis=2)))
         else:
             self.create_transition_matrix_no_smooth()
             print self.transition_mat_array
             print np.sum(self.transition_mat_array, axis=2)
+            logging.info('{}: using smoothing: {}'.format(time.asctime(time.localtime(time.time())), is_smooth))
+            logging.info('{}: sum of rows in transition matrix is: \n {}'.
+                         format(time.asctime(time.localtime(time.time())),
+                                np.sum(self.transition_mat_array, axis=2)))
         self.create_emission_matrix()
         print self.emission_mat_array
         with open('transition_mat.csv', 'wb') as csv_file:

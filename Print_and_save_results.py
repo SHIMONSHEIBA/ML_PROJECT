@@ -27,12 +27,12 @@ class print_save_results:
         self.eval_res = {}
 
     def run(self):
-        self.eval_res = self.eval_test_results(self.viterbi_result, self.data_file_name)
+        self.word_results_dictionary, self.seq_results_dictionary = self.eval_test_results(self.viterbi_result, self.data_file_name)
         self.write_result_doc()
         self.write_confusion_doc(True)  # write tags confusion matrix
         self.write_confusion_doc(False)  # write sequence label confusion matrix
 
-        return self.eval_res
+        return self.word_results_dictionary, self.seq_results_dictionary
 
     def eval_test_results(self, predicted_word_tag, data_file_name):
         # predicted_values
@@ -93,19 +93,30 @@ class print_save_results:
                     self.all_seq_confusion_matrix[seq_confusion_mat_key] += 1
                 sequence_index += 1
 
-        print 'Miss'
+        print 'Miss per word'
         print miss
-        print 'Hit'
+        print 'Hit per word'
         print hit
-        print 'Accuracy'
+        print 'Accuracy per word'
         print float(hit)/float(miss+hit)
+        print 'Miss per seq'
+        print seq_miss
+        print 'Hit per seq'
+        print seq_hit
+        print 'Accuracy per seq'
+        print float(seq_hit)/float(seq_miss+seq_hit)
 
-        return {
-            'confusion_matrix': self.confusion_matrix,
-            'Miss': miss,
-            'Hit': hit,
-            'Accuracy': float(hit)/float(miss+hit)
-        }
+        return \
+            {'confusion_matrix per word': self.confusion_matrix,
+                'Miss per word': miss,
+                'Hit per word': hit,
+                'Accuracy per word': float(hit)/float(miss+hit)
+             }, \
+            {'confusion_matrix per seq': self.all_seq_confusion_matrix,
+                'Miss per seq': seq_miss,
+                'Hit per seq': seq_hit,
+                'Accuracy per seq': float(seq_hit)/float(seq_miss+seq_hit)
+             }
 
     def write_result_doc(self):
 
@@ -137,22 +148,22 @@ class print_save_results:
 
         sheet1 = book.add_sheet("Confusion Matrix")
 
-        pattern = xlwt.Pattern()  # Create the Pattern
-        pattern.pattern = xlwt.Pattern.SOLID_PATTERN  # May be: NO_PATTERN, SOLID_PATTERN, or 0x00 through 0x12
-        pattern.pattern_fore_colour = 22  # May be: 8 through 63. 0 = Black, 1 = White, 2 = Red
-        style = xlwt.XFStyle()  # Create the Pattern
-        style.pattern = pattern  #
+        pattern = xlwt.Pattern()
+        pattern.pattern = xlwt.Pattern.SOLID_PATTERN
+        pattern.pattern_fore_colour = 22
+        style = xlwt.XFStyle()
+        style.pattern = pattern
 
-        pattern_mistake = xlwt.Pattern()  # Create the Pattern
-        pattern_mistake.pattern = xlwt.Pattern.SOLID_PATTERN  # May be: NO_PATTERN, SOLID_PATTERN, or 0x00 through 0x12
+        pattern_mistake = xlwt.Pattern()
+        pattern_mistake.pattern = xlwt.Pattern.SOLID_PATTERN
         pattern_mistake.pattern_fore_colour = 2
-        style_mistake = xlwt.XFStyle()  # Create the Pattern
+        style_mistake = xlwt.XFStyle()
         style_mistake.pattern = pattern_mistake
 
-        pattern_good = xlwt.Pattern()  # Create the Pattern
-        pattern_good.pattern = xlwt.Pattern.SOLID_PATTERN  # May be: NO_PATTERN, SOLID_PATTERN, or 0x00 through 0x12
+        pattern_good = xlwt.Pattern()
+        pattern_good.pattern = xlwt.Pattern.SOLID_PATTERN
         pattern_good.pattern_fore_colour = 3
-        style_good = xlwt.XFStyle()  # Create the Pattern
+        style_good = xlwt.XFStyle()
         style_good.pattern = pattern_good
 
         sheet1.write(0, 0, ' ', style)
@@ -162,7 +173,7 @@ class print_save_results:
         for row_tag_idx, row_tag in enumerate(column_rows_structure):
             sheet1.write(row_tag_idx+1, 0, row_tag, style)
             for col_tag_idx, col_tag in enumerate(column_rows_structure):
-                cur_value = confusion_matrix_to_write[str(row_tag) + '_' + str(col_tag)]    # confusion_matrix_unseen
+                cur_value = confusion_matrix_to_write[str(row_tag) + '_' + str(col_tag)]
                 if cur_value == 0:
                     sheet1.write(row_tag_idx + 1, col_tag_idx+1, str(cur_value))
                 else:
@@ -171,9 +182,3 @@ class print_save_results:
                     else:
                         sheet1.write(row_tag_idx + 1, col_tag_idx + 1, str(cur_value), style_mistake)
         book.save(file_name)
-
-def main():
-    print_save_results('a', 'b', 'c', 'd', 'd', 'e')
-
-if __name__ == "__main__":
-    main()
