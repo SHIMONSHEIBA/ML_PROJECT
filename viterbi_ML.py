@@ -9,8 +9,12 @@ class viterbi(object):
     def __init__(self, model, model_type, data_file, is_log, use_stop_prob, w=0):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.model_type = model_type
-        self.transition_mat = model.transition_mat
-        self.emission_mat = model.emission_mat
+        if model_type == 'hmm':
+            self.transition_mat = model.transition_mat
+            self.emission_mat = model.emission_mat
+        else:
+            self.transition_mat = {}
+            self.emission_mat = {}
         self.states = list(itertools.chain.from_iterable(model.word_tag_dict.values()))
         self.weight = w
         self.training_file = data_file
@@ -29,14 +33,14 @@ class viterbi(object):
         with open(self.training_file) as training:
             sequence_index = 0
             for sequence in training:
-                print '{}: Start viterbi on sequence index {}'. \
-                    format(time.asctime(time.localtime(time.time())), sequence_index)
+                print('{}: Start viterbi on sequence index {}'. \
+                    format(time.asctime(time.localtime(time.time())), sequence_index))
                 viterbi_result = self.viterbi_sequence(sequence)
                 seq_word_tag_predict = []
                 word_tag_list = sequence.split(',')
                 for idx_tag, tag in viterbi_result.iteritems():
                     if tag == 0 or tag == '0' or tag == -1 or tag == '-1':
-                        print 'Error: tag is: {}'.format(tag)
+                        print('Error: tag is: {}'.format(tag))
                     word = word_tag_list[idx_tag].split('_')[0]
                     prediction = str(word + '_' + str(tag))
                     seq_word_tag_predict.append(prediction)
@@ -104,11 +108,23 @@ class viterbi(object):
                             calc_pi = w_u_pi * qe
 
                         elif self.model_type == 'memm':  # for MEMM calc q
-                            q = self.calc_q(v, u, w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
+                            if v == '0':
+                                memm_v = '#'
+                            else:
+                                memm_v = v
+                            if u == '0':
+                                memm_u = '#'
+                            else:
+                                memm_u = u
+                            if w == '0':
+                                memm_w = '#'
+                            else:
+                                memm_w = w
+                            q = self.calc_q(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 
                         else:
-                            print 'Error: model_type is not in [memm, hmm]'
+                            print('Error: model_type is not in [memm, hmm]')
 
                         if calc_pi > calc_max_pi:
                             calc_max_pi = calc_pi
@@ -137,7 +153,7 @@ class viterbi(object):
             v = np.unravel_index(stop_p_array.argmax(), stop_p_array.shape)[1]  # argmax for v in n
 
             if v == -1 or u == -1:
-                print 'Error: v or u value is -1'
+                print('Error: v or u value is -1')
 
             seq_word_tag_predict[n - 1] = v
             seq_word_tag_predict[n - 2] = u
@@ -152,7 +168,7 @@ class viterbi(object):
             v = np.unravel_index(pi[n].argmax(), pi[n].shape)[1]  # argmax for v in n
 
             if v == -1 or u == -1:
-                print 'Error: v or u value is -1'
+                print('Error: v or u value is -1')
 
             seq_word_tag_predict[n - 1] = v
             seq_word_tag_predict[n - 2] = u
@@ -163,11 +179,11 @@ class viterbi(object):
             return seq_word_tag_predict
 
         else:
-            print 'Error: model_type is not in [memm, hmm]'
+            print('Error: model_type is not in [memm, hmm]')
 
     def possible_tags(self, word):
         if word == '#':
-            return [0]
+            return ['0']
         else:
             # get all relevant tags for word
             return self.word_tag_dict.get(word)

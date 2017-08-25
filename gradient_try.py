@@ -7,18 +7,16 @@ class Gradient(object):
 
     def __init__(self, memm, lamda):
 
+
         self.lamda = lamda
         self.index_of_objective = 1
         self.gradient_iter = 1
-
         self.memm = memm
         self.history_tag_feature_vector_train = memm.history_tag_feature_vector_train
         self.history_tag_feature_vector_denominator = memm.history_tag_feature_vector_denominator
         self.tags_dict = memm.tags_dict
         self.iteration_counter = 0
-
-
-        self.v0 = np.zeros(shape=len(memm.features_vector), dtype = int)
+        self.w_init = np.zeros(shape=len(memm.features_vector), dtype = int)
 
     def objectiveFunction(self, v):
 
@@ -26,7 +24,7 @@ class Gradient(object):
         second_part = 0
         third_part = 0
 
-        for history_tag, feature_vector in self.history_tag_feature_vector_train.iteritems():
+        for history_tag, feature_vector in self.history_tag_feature_vector_train.items():
 
             # 3: 1-to-n v*f_v
             third_part += float(feature_vector.dot(v))
@@ -63,15 +61,15 @@ class Gradient(object):
         second_part = 0
         third_part = np.copy(v)
 
-        for history_tag, feature_vector in self.history_tag_feature_vector_train.iteritems():
+        for history_tag, feature_vector in self.history_tag_feature_vector_train.items():
             first_part = np.add(first_part, feature_vector)
 
-        for history_tag, feature_vector in self.history_tag_feature_vector_train.iteritems():
+        for history_tag, feature_vector in self.history_tag_feature_vector_train.items():
 
             # save time - calculate only one time exp(v*f(x,y))
             tag_exp_dict = {}
             sum_dict_denominator = 0
-            for tag_prime, flag in self.tags_dict.iteritems():
+            for tag_prime, flag in self.tags_dict.items():
                 if (history_tag[0], tag_prime) in self.history_tag_feature_vector_denominator:
                     feature_vector_current = self.history_tag_feature_vector_denominator[history_tag[0], tag_prime]   # history[0] - x vector
                     cur_res = math.exp(feature_vector_current.dot(v))
@@ -79,7 +77,7 @@ class Gradient(object):
                     tag_exp_dict[tag_prime] = cur_res
 
             second_part_inner = 0
-            for tag_prime, flag in self.tags_dict.iteritems():
+            for tag_prime, flag in self.tags_dict.items():
                 if (history_tag[0], tag_prime) in self.history_tag_feature_vector_denominator:
                     right_var = tag_exp_dict[tag_prime] / sum_dict_denominator
                     second_part_inner = second_part_inner + (self.history_tag_feature_vector_denominator[history_tag[0], tag_prime] * right_var)
@@ -96,9 +94,8 @@ class Gradient(object):
 
     def gradientDescent(self):
 
-        result = minimize(fun=self.objectiveFunction, x0=self.v0,
-                       method='L-BFGS-B',jac=self.gradient,
-                       options={'disp': True, 'maxiter': 15, 'factr': 1e2})
+        result = minimize(fun=self.objectiveFunction, x0=self.w_init,method='L-BFGS-B',jac=self.gradient,
+                          options={'disp': True, 'maxiter': 20, 'factr': 1e2})
         print('finish gradient Descent')
         print(result.x)
         return result
