@@ -15,7 +15,7 @@ def main():
     chrome_test_list = ['16', '12', '7', '15', '4']
     logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}'
                  .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
-    print '{}: Start creating HMM'.format(time.asctime(time.localtime(time.time())))
+    print('{}: Start creating HMM'.format(time.asctime(time.localtime(time.time()))))
     logging.info('{}: Start creating HMM'.format(time.asctime(time.localtime(time.time()))))
     lambda1 = 0.8
     lambda2 = 0.1
@@ -28,16 +28,15 @@ def main():
 
     for chrome in chrome_test_list:
         test_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
-        print '{}: Start viterbi for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
+        print('{}: Start viterbi for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome))
         viterbi_obj = viterbi(hmm, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob)
         viterbi_result = viterbi_obj.viterbi_all_data()
 
-        print 'start evaluation'
+        print('start evaluation')
         write_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\file_results\\chr' + chrome +
                                                   '_resultNoStop_%d_%m_%Y_%H_%M.csv')
         confusion_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome +
                                                       '_CMNoStop_%d_%m_%Y_%H_%M.xls')
-
         seq_confusion_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome +
                                                           '_sqeCMNoStop_%d_%m_%Y_%H_%M.xls')
         seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
@@ -47,8 +46,8 @@ def main():
                                           confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
         word_results_dictionary, seq_results_dictionary = evaluate_obj.run()
 
-        print word_results_dictionary
-        print seq_results_dictionary
+        print(word_results_dictionary)
+        print(seq_results_dictionary)
         logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
                      format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
                             seq_results_dictionary))

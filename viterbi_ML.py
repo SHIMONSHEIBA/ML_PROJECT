@@ -110,10 +110,16 @@ class viterbi(object):
                         elif self.model_type == 'memm':  # for MEMM calc q
                             if v == '0':
                                 memm_v = '#'
+                            else:
+                                memm_v = v
                             if u == '0':
                                 memm_u = '#'
+                            else:
+                                memm_u = u
                             if w == '0':
                                 memm_w = '#'
+                            else:
+                                memm_w = w
                             q = self.calc_q(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 

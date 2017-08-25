@@ -99,18 +99,18 @@ class print_save_results:
         print(hit)
         print('Accuracy')
         print(float(hit)/float(miss+hit))
-        print 'Miss per word'
-        print miss
-        print 'Hit per word'
-        print hit
-        print 'Accuracy per word'
-        print float(hit)/float(miss+hit)
-        print 'Miss per seq'
-        print seq_miss
-        print 'Hit per seq'
-        print seq_hit
-        print 'Accuracy per seq'
-        print float(seq_hit)/float(seq_miss+seq_hit)
+        print('Miss per word')
+        print(miss)
+        print('Hit per word')
+        print(hit)
+        print('Accuracy per word')
+        print(float(hit)/float(miss+hit))
+        print('Miss per seq')
+        print(seq_miss)
+        print('Hit per seq')
+        print(seq_hit)
+        print('Accuracy per seq')
+        print(float(seq_hit)/float(seq_miss+seq_hit))
 
         return \
             {'confusion_matrix per word': self.confusion_matrix,

@@ -357,8 +357,18 @@ class MEMM:
             permutation_list_two.append('##'+''.join(permutation))
         del(permutations_list_two_t)
 
+        permutations_list_three_t = product('ACGT', repeat=4)
+        permutation_list_three = []
+        for permutation in permutations_list_three_t:
+            permutation_list_three.append(''.join(permutation)+'###')
+            permutation_list_three.append('###'+''.join(permutation))
+        del(permutations_list_three_t)
+
+
         permutation_list_one += permutation_list_two
+        permutation_list_one += permutation_list_three
         del(permutation_list_two)
+        del (permutation_list_three)
         for permutation in permutations_list:
             permutation_list_one.append(''.join(permutation))
         del(permutations_list)
