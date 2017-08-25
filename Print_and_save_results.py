@@ -70,7 +70,7 @@ class print_save_results:
                     if include_gen == -1 and predict_tag in ['1', '2', '3', '4']:
                         include_gen = 1
                     if predict_word != word_tag_tuple[0]:
-                        print 'problem miss between prediction and test word indexes'
+                        print('problem miss between prediction and test word indexes')
                     if predict_tag != word_tag_tuple[1]:  # tag miss
                         miss += 1
                         confusion_mat_key = str(word_tag_tuple[1]) + '_' + str(predict_tag)  # real tag _ prediction tag
@@ -93,12 +93,12 @@ class print_save_results:
                     self.all_seq_confusion_matrix[seq_confusion_mat_key] += 1
                 sequence_index += 1
 
-        print 'Miss'
-        print miss
-        print 'Hit'
-        print hit
-        print 'Accuracy'
-        print float(hit)/float(miss+hit)
+        print('Miss')
+        print(miss)
+        print('Hit')
+        print(hit)
+        print('Accuracy')
+        print(float(hit)/float(miss+hit))
 
         return {
             'confusion_matrix': self.confusion_matrix,
