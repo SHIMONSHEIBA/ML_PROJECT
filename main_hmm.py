@@ -11,9 +11,9 @@ LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFi
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
 def main():
-    chrome_train_list = ['17', '1', '6', '3', '9', '8', '5', '11', '14', '2', '13', '10']
-    chrome_test_list = ['16', '12', '7', '15', '4']
-    logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}'
+    chrome_train_list = ['8', '5', '11', '14', '2', '13', '10', '16', '12', '7', '15', '4']
+    chrome_test_list = ['17', '1', '6', '3', '9']
+    logging.info('{}: Train list is (long chromes): {}, test list is (shore chromes): {}'
                  .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
     print '{}: Start creating HMM'.format(time.asctime(time.localtime(time.time())))
     logging.info('{}: Start creating HMM'.format(time.asctime(time.localtime(time.time()))))
@@ -27,7 +27,7 @@ def main():
     logging.info('{}: use stop probability is: {}'.format(time.asctime(time.localtime(time.time())), use_stop_prob))
 
     for chrome in chrome_test_list:
-        test_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+        test_file = 'C:\\gitprojects\\ML_PROJECT\\labels\\chr' + chrome + '_label.csv'
         print '{}: Start viterbi for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
         viterbi_obj = viterbi(hmm, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob)
         viterbi_result = viterbi_obj.viterbi_all_data()
@@ -40,8 +40,9 @@ def main():
 
         seq_confusion_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome +
                                                           '_sqeCMNoStop_%d_%m_%Y_%H_%M.xls')
-        seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
-        logging.info('{}: Related results files are: \n {} \n {} \n {}'.format(time.asctime(time.localtime(time.time())),
+        seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels\\chr' + chrome + '_sample_label.xlsx'
+        logging.info('{}: Related results files for chrome {} are: \n {} \n {} \n {} \n'.
+                     format(time.asctime(time.localtime(time.time())), chrome,
                      write_file_name, confusion_file_name, seq_confusion_file_name))
         evaluate_obj = print_save_results(hmm, 'hmm', test_file, viterbi_result, write_file_name,
                                           confusion_file_name, seq_labels_file_name, seq_confusion_file_name)

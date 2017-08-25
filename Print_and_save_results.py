@@ -107,15 +107,17 @@ class print_save_results:
         print float(seq_hit)/float(seq_miss+seq_hit)
 
         return \
-            {'confusion_matrix per word': self.confusion_matrix,
+            {
                 'Miss per word': miss,
                 'Hit per word': hit,
-                'Accuracy per word': float(hit)/float(miss+hit)
+                'Accuracy per word': float(hit)/float(miss+hit),
+                'confusion_matrix per word': self.confusion_matrix
              }, \
-            {'confusion_matrix per seq': self.all_seq_confusion_matrix,
+            {
                 'Miss per seq': seq_miss,
                 'Hit per seq': seq_hit,
-                'Accuracy per seq': float(seq_hit)/float(seq_miss+seq_hit)
+                'Accuracy per seq': float(seq_hit)/float(seq_miss+seq_hit),
+                'confusion_matrix per seq': self.all_seq_confusion_matrix
              }
 
     def write_result_doc(self):
