@@ -33,8 +33,8 @@ class viterbi(object):
         with open(self.training_file) as training:
             sequence_index = 0
             for sequence in training:
-                print('{}: Start viterbi on sequence index {}: \n {}'. \
-                    format(time.asctime(time.localtime(time.time())), sequence_index, sequence))
+                print('{}: Start viterbi on sequence index {}: \n {}'.format(time.asctime(time.localtime(time.time())),
+                                                                             sequence_index, sequence))
                 word_tag_list = sequence.split(',')
                 if '\n' in word_tag_list[len(word_tag_list) - 1]:
                     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
@@ -109,25 +109,13 @@ class viterbi(object):
                             calc_pi = w_u_pi * qe
 
                         elif self.model_type == 'memm':  # for MEMM calc q
-                            if v == '0':
-                                memm_v = '#'
-                            else:
-                                memm_v = v
-                            if u == '0':
-                                memm_u = '#'
-                            else:
-                                memm_u = u
-                            if w == '0':
-                                memm_w = '#'
-                            else:
-                                memm_w = w
                             print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
-                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1,
+                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(v, u, w, x_k_3, x_k_2, x_k_1,
                                                                           x_k_p_3, x_k_p_2, x_k_p_1, x_k))
                             if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '' \
                                     or x_k_p_3 == '\n' or x_k_p_2 == '\n' or x_k_p_1 == '\n':
                                 reut = 1
-                            q = self.calc_q(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
+                            q = self.calc_q(v, u, w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 
                         else:
@@ -190,7 +178,10 @@ class viterbi(object):
 
     def possible_tags(self, word):
         if word == '#':
-            return ['0']
+            if self.model_type == 'memm':
+                return ['#']
+            elif self.model_type == 'hmm':
+                return ['0']
         else:
             # get all relevant tags for word
             return self.word_tag_dict.get(word)
@@ -198,7 +189,7 @@ class viterbi(object):
     def calc_qe(self, v, u, w, x_k):  # calculate q*e for HMM model
         tags_for_matrix = [v, u, w]
         for tag_index, tag in enumerate(tags_for_matrix):
-            if tag == 0:
+            if tag == '0':
                 tags_for_matrix[tag_index] = '#'
 
         q = self.transition_mat[tags_for_matrix[0] + '|' + tags_for_matrix[2] + ',' + tags_for_matrix[1]]

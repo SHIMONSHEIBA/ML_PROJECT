@@ -43,12 +43,12 @@ op.add_option("--report",
 op.add_option("--confusion_matrix",
               action="store_true", dest="print_cm", default=True,
               help="Print the confusion matrix.")
+op.add_option("--use_CV",
+              action='store', dest="use_CV", default=True,
+              help="Run cross validation, if False: train on some chromes, and predict others")
 op.add_option("--k_fold",
               action='store', type=int, default=100,
               help='k_fold when using cross validation')
-op.add_option("--use_CV",
-              action="store_true", dest="print_cm", default=False,
-              help="Run cross validation, if False: train on some chromes, and predict others")
 
 (opts, args) = op.parse_args()
 if len(args) > 0:
@@ -65,9 +65,14 @@ class Classifier:
         self.X_train =\
             features_obj.all_train_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
         self.Y_train = features_obj.all_train_samples_features['IsGen']
-        self.X_test =\
-            features_obj.all_test_samples_features.ix[:, features_obj.all_test_samples_features.columns != 'IsGen']
-        self.Y_test = features_obj.all_test_samples_features['IsGen']
+        if opts.use_CV:
+            self.X_test = \
+                features_obj.all_test_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
+            self.Y_test = features_obj.all_train_samples_features['IsGen']
+        else:
+            self.X_test =\
+                features_obj.all_test_samples_features.ix[:, features_obj.all_test_samples_features.columns != 'IsGen']
+            self.Y_test = features_obj.all_test_samples_features['IsGen']
         print('data loaded')
 
 ###############################################################################
@@ -150,14 +155,14 @@ class Classifier:
         results.append(self.benchmark(BernoulliNB(alpha=.01), 'BernoulliNB'))
         # results.append(self.benchmark(GaussianNB(), 'GaussianNB'))
 
-        print('=' * 80)
-        print("LinearSVC with L1-based feature selection")
-        # The smaller C, the stronger the regularization.
-        # The more regularization, the more sparsity.
-        results.append(self.benchmark(Pipeline([
-          ('feature_selection', LinearSVC(penalty="l1", dual=False, tol=1e-3)),
-          ('classification', LinearSVC())
-        ])))
+        # print('=' * 80)
+        # print("LinearSVC with L1-based feature selection")
+        # # The smaller C, the stronger the regularization.
+        # # The more regularization, the more sparsity.
+        # results.append(self.benchmark(Pipeline([
+        #   ('feature_selection', LinearSVC(penalty="l1", dual=False, tol=1e-3)),
+        #   ('classification', LinearSVC())
+        # ])))
 
         # make some plots
 
@@ -195,9 +200,9 @@ class Classifier:
 
 
 if __name__ == '__main__':
-    chrome_train_list = ['8', '5', '11', '14', '2', '13', '10', '16', '12', '7', '15', '4']
-    chrome_test_list = ['17', '1', '6', '3', '9']
-    logging.info('{}: Train list is (long chromes): {}, test list is (shore chromes): {}'
+    chrome_train_list = ['17', '1', '6', '3', '9', '8', '5', '11', '14', '2', '13', '10', '16', '12', '7', '15', '4']
+    chrome_test_list = ['17']
+    logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}. Cross validation'
                  .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
     NonStructureFeatures_obj = NonStructureFeatures(chrome_train_list, chrome_test_list)
     classifier = Classifier(NonStructureFeatures_obj)

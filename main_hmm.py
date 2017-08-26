@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 import logging
 
-LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileHMM_%d_%m_%Y_%H_%M.log')
+LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileHMMLong_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
 def main():
@@ -34,12 +34,12 @@ def main():
 
         print('start evaluation')
         write_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\file_results\\chr' + chrome +
-                                                  '_resultNoStop_%d_%m_%Y_%H_%M.csv')
+                                                  '_resultLong_%d_%m_%Y_%H_%M.csv')
         confusion_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome +
-                                                      '_CMNoStop_%d_%m_%Y_%H_%M.xls')
+                                                      '_CMLong_%d_%m_%Y_%H_%M.xls')
         seq_confusion_file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome +
-                                                          '_sqeCMNoStop_%d_%m_%Y_%H_%M.xls')
-        seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
+                                                          '_sqeCMLong_%d_%m_%Y_%H_%M.xls')
+        seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels\\chr' + chrome + '_sample_label.xlsx'
         logging.info('{}: Related results files are: \n {} \n {} \n {}'.format(time.asctime(time.localtime(time.time())),
                      write_file_name, confusion_file_name, seq_confusion_file_name))
         evaluate_obj = print_save_results(hmm, 'hmm', test_file, viterbi_result, write_file_name,

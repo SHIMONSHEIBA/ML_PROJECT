@@ -39,16 +39,17 @@ class NonStructureFeatures:
         self.chrome_test_list = chrome_test_list
 
         # build the type of features
-        print('{}: Starting building features from train'.format(time.asctime(time.localtime(time.time()))))
+        print('{}: Start building features from train'.format(time.asctime(time.localtime(time.time()))))
         self.all_train_samples_features = self.build_features_from_train(self.chrome_train_list)
-        print('{}: Starting building features from test'.format(time.asctime(time.localtime(time.time()))))
+        print('{}: Start building features from test'.format(time.asctime(time.localtime(time.time()))))
         self.all_test_samples_features = self.build_features_from_train(self.chrome_test_list)
 
     def build_features_from_train(self, chrome_list):
         # In this function we are counting amount of instances from
         # each feature for statistics and feature importance
-        sequence_index = 0
         for chrome in chrome_list:
+            sequence_index = 0
+            print('{}: Start train chrome number {}'.format(time.asctime(time.localtime(time.time())), chrome))
             training_file = 'C:\\gitprojects\\ML_PROJECT\\data150\\chr' + chrome + '_data.csv'
             # training_file = 'C:\\gitprojects\\ML project\\samples_small_data\\data_small.csv'
             # labels per seq
@@ -59,6 +60,8 @@ class NonStructureFeatures:
 
             with open(training_file) as training:
                 for sequence in training:
+                    print('{}: Start train seq number {} in chrome number {}'.
+                          format(time.asctime(time.localtime(time.time())), sequence_index, chrome))
                     vector_index = {}
                     # word_tag_list = sequence.split(',')
                     sequence = sequence.replace(',', '')
@@ -78,6 +81,9 @@ class NonStructureFeatures:
                         label = 'count' + three_words_seq
                         vector_index[(label)] = sum(1 for _ in re.finditer(r'%s' %
                                                                        re.escape(three_words_seq), sequence))
+
+                    if sequence_index == (seq_label_array.size - 1):
+                        reut = 1
 
                     vector_index[('IsGen')] = (int(seq_label_array[sequence_index][0]))
                     data = vector_index.values()
