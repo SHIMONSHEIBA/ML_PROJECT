@@ -35,13 +35,12 @@ class viterbi(object):
             for sequence in training:
                 print('{}: Start viterbi on sequence index {}: \n {}'. \
                     format(time.asctime(time.localtime(time.time())), sequence_index, sequence))
-                viterbi_result = self.viterbi_sequence(sequence)
-                seq_word_tag_predict = []
                 word_tag_list = sequence.split(',')
-                if '\n' in word_tag_list:
-                    word_tag_list.remove('\n')
-                word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1][:1]
-                for idx_tag, tag in viterbi_result.iteritems():
+                if '\n' in word_tag_list[len(word_tag_list) - 1]:
+                    word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
+                viterbi_result = self.viterbi_sequence(word_tag_list)
+                seq_word_tag_predict = []
+                for idx_tag, tag in viterbi_result.items():
                     if tag == 0 or tag == '0' or tag == -1 or tag == '-1':
                         print('Error: tag is: {}'.format(tag))
                     word = word_tag_list[idx_tag].split('_')[0]
@@ -55,12 +54,11 @@ class viterbi(object):
             #                                                   predict_dict)
         return predict_dict
 
-    def viterbi_sequence(self, sequence):
+    def viterbi_sequence(self, word_tag_list):
         seq_word_tag_predict = {}
 
-        n = len(sequence.split(','))
+        n = len(word_tag_list)
         num_states = len(self.states)
-        word_tag_list = sequence.split(',')
 
         # create pi and bp numpy
         pi = np.ones(shape=(n+1, num_states, num_states), dtype=float) * float("-inf")
@@ -97,7 +95,7 @@ class viterbi(object):
                 x_k_p_1 = word_tag_list[k].split('_')[0]      # word k+1
             else:  # word in position n, no word in k+3 and k+2
                 x_k_p_3, x_k_p_2, x_k_p_1 = '#', '#', '#'  # word k+3 and k+2 and k+1
-            if k == n:
+            if k == n-3:
                 reut = 1
             x_k = word_tag_list[k-1].split('_')[0]
             for u in self.possible_tags(x_k_1):
@@ -126,7 +124,8 @@ class viterbi(object):
                             print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
                                   'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1,
                                                                           x_k_p_3, x_k_p_2, x_k_p_1, x_k))
-                            if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '':
+                            if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '' \
+                                    or x_k_p_3 == '\n' or x_k_p_2 == '\n' or x_k_p_1 == '\n':
                                 reut = 1
                             q = self.calc_q(memm_v, memm_u, memm_w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
