@@ -109,15 +109,22 @@ class viterbi(object):
                         if self.model_type == 'hmm':  # for HMM calc q*e
                             qe = self.calc_qe(v, u, w, x_k)
                             calc_pi = w_u_pi * qe
+                            tags_for_matrix = [v, u, w]
+                            if '0' in tags_for_matrix:
+                                for tag_index, tag in enumerate(tags_for_matrix):
+                                    if tag == '0':
+                                        tags_for_matrix[tag_index] = '#'
 
                         elif self.model_type == 'memm':  # for MEMM calc q
                             print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
-                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(v, u, w, x_k_3, x_k_2, x_k_1,
+                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(tags_for_matrix[0], tags_for_matrix[1],
+                                                                          tags_for_matrix[2], x_k_3, x_k_2, x_k_1,
                                                                           x_k_p_3, x_k_p_2, x_k_p_1, x_k))
                             if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '' \
                                     or x_k_p_3 == '\n' or x_k_p_2 == '\n' or x_k_p_1 == '\n':
                                 reut = 1
-                            q = self.calc_q(v, u, w, x_k_3, x_k_2, x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
+                            q = self.calc_q(tags_for_matrix[0], tags_for_matrix[1], tags_for_matrix[2], x_k_3, x_k_2,
+                                            x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
 
                         else:
@@ -180,10 +187,7 @@ class viterbi(object):
 
     def possible_tags(self, word):
         if word == '#':
-            if self.model_type == 'memm':
-                return ['#']
-            elif self.model_type == 'hmm':
-                return ['0']
+            return ['0']
         else:
             # get all relevant tags for word
             return self.word_tag_dict.get(word)
