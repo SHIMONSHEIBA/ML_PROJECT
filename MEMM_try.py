@@ -81,7 +81,7 @@ class MEMM:
         print('starting building features from train')
 
         for chrome in self.chrome_list:
-            training_file = 'C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
 
             with open(training_file) as training:
 

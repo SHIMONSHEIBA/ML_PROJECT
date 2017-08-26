@@ -61,9 +61,12 @@ class print_save_results:
 
                 for i, val in enumerate(word_tag_list):
                     word_tag_tuple = val.split('_')
-                    if '\n' in word_tag_tuple[1]:
-                        word_tag_tuple[1] = word_tag_tuple[1][:1]
-
+                    if '\n' in word_tag_list[len(word_tag_list) - 1]:
+                        word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
+                    if '' in word_tag_list:
+                        word_tag_list.remove('')
+                    # if '\n' in word_tag_tuple[1]:
+                    #     word_tag_tuple[1] = word_tag_tuple[1][:1]
                     predict_item = predicted_word_tag[sequence_index][i].split('_')
                     predict_word = predict_item[0]  # our predicted tag
                     predict_tag = predict_item[1]
