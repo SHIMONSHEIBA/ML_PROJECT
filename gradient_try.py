@@ -12,12 +12,12 @@ class Gradient(object):
         self.memm = memm
         self.w_init = np.zeros(shape=len(memm.features_vector), dtype=int)
         self.lamda = lamda
-        self.index_of_objective = 1
-        self.gradient_iter = 1
         self.history_tag_feature_vector_train = memm.history_tag_feature_vector_train
         self.history_tag_feature_vector_denominator = memm.history_tag_feature_vector_denominator
         self.tags_dict = memm.tags_dict
         self.iteration_counter = 0
+        self.index_of_loss = 1
+        self.index_gradient = 1
 
 
 
@@ -49,8 +49,8 @@ class Gradient(object):
             second_part += second_part_inner
 
         print('finished descent step of gradient')
-        print(self.gradient_iter)
-        self.gradient_iter += 1
+        print(self.index_gradient)
+        self.index_gradient += 1
 
         first_part = first_part.toarray()
         second_part = second_part.toarray()
@@ -89,13 +89,13 @@ class Gradient(object):
         second_part += 0.5*pow(np.linalg.norm(v), 2)
 
         print('finished loss step')
-        print(self.index_of_objective)
-        self.index_of_objective+=1
+        print(self.index_of_loss)
+        self.index_of_loss+=1
         return first_part + self.lamda*second_part - third_part
 
     def gradient_descent(self):
 
-        result = minimize(fun=self.loss, x0=self.w_init,method='L-BFGS-B',jac=self.gradient,
+        result = minimize(method='L-BFGS-B', fun=self.loss, x0=self.w_init, jac=self.gradient,
                           options={'disp': True, 'maxiter': 20, 'factr': 10.0})
         print('finished gradient')
         print(result.x)
