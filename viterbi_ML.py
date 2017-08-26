@@ -38,6 +38,8 @@ class viterbi(object):
                 word_tag_list = sequence.split(',')
                 if '\n' in word_tag_list[len(word_tag_list) - 1]:
                     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
+                if '' in word_tag_list:
+                    word_tag_list.remove('')
                 viterbi_result = self.viterbi_sequence(word_tag_list)
                 seq_word_tag_predict = []
                 for idx_tag, tag in viterbi_result.items():
@@ -147,8 +149,8 @@ class viterbi(object):
             u = np.unravel_index(stop_p_array.argmax(), stop_p_array.shape)[0]  # argmax for u in n-1
             v = np.unravel_index(stop_p_array.argmax(), stop_p_array.shape)[1]  # argmax for v in n
 
-            if v == -1 or u == -1:
-                print('Error: v or u value is -1')
+            if v in [-1, '-1', 0, '0'] or u in [-1, '-1', 0, '0']:
+                print('Error: v or u value is: {}'.format(v))
 
             seq_word_tag_predict[n - 1] = v
             seq_word_tag_predict[n - 2] = u
