@@ -84,7 +84,7 @@ class HMM(object):
         sequence_index = 0
         print '{}: Start build transition and emission matrices'.format(time.asctime(time.localtime(time.time())))
         for chrome in self.chrome_list:
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels\\chr' + chrome + '_label.csv'
+            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
             with open(training_file) as training:
                 for sequence in training:
                     sequence_index += 1

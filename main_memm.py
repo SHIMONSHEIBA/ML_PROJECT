@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 
 LOG_FILENAME = datetime.now().strftime\
-    ('C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\logs\\LogFileMEMM_%d_%m_%Y_%H_%M.log')
+    ('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileMEMM_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
 def main():
@@ -27,20 +27,20 @@ def main():
 
     for chrome in chrome_test_list:
 
-        test_file = 'C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+        test_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
         print('{}: Start viterbi for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome))
         viterbi_obj = viterbi(memm, 'memm', data_file=test_file, is_log=False, use_stop_prob=False, w=weights )
         viterbi_result = viterbi_obj.viterbi_all_data()
 
         print('start evaluation')
         write_file_name = datetime.now().strftime\
-            ('C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\file_results\\chr' + chrome + '_resultMEMM_%d_%m_%Y_%H_%M.csv')
+            ('C:\\gitprojects\\\ML_PROJECT\\file_results\\chr' + chrome + '_resultMEMM_%d_%m_%Y_%H_%M.csv')
         confusion_file_name = datetime.now().strftime\
-            ('C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\confusion_files\\chr' + chrome + '_CMMEMM_%d_%m_%Y_%H_%M.xls')
+            ('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome + '_CMMEMM_%d_%m_%Y_%H_%M.xls')
         seq_confusion_file_name = datetime.now().strftime\
-            ('C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\confusion_files\\chr' + chrome + '_sqeCMMEMM_%d_%m_%Y_%H_%M.xls')
+            ('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome + '_sqeCMMEMM_%d_%m_%Y_%H_%M.xls')
         # seq_labels_file_name = 'C:/gitprojects/ML project/samples_small_data/chr1_sample_label.xlsx'
-        seq_labels_file_name = 'C:\\Users\\shimo\\Desktop\\STRUCTURED_PREDICTION\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
+        seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
         evaluate_obj = print_save_results(memm, 'memm', test_file, viterbi_result, write_file_name,
                                           confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
         word_results_dictionary, seq_results_dictionary = evaluate_obj.run()

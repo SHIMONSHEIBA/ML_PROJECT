@@ -2,11 +2,12 @@ import numpy as np
 import time
 import math
 import itertools
+from collections import Counter
 
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
-    def __init__(self, model, model_type, data_file, is_log, use_stop_prob, w=0):
+    def __init__(self, model, model_type, data_file, is_log, use_stop_prob, use_majority_vote=False, w=0):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.model_type = model_type
         if model_type == 'hmm':
@@ -17,9 +18,10 @@ class viterbi(object):
             self.emission_mat = {}
         self.states = list(itertools.chain.from_iterable(model.word_tag_dict.values()))
         self.weight = w
-        self.training_file = data_file
+        self.predict_file = data_file
         self.word_tag_dict = model.word_tag_dict
         self.use_stop_prob = use_stop_prob
+        self.use_majority_vote = use_majority_vote
         if model_type == 'memm':
             self.history_tag_feature_vector = model.history_tag_feature_vector
         else:
@@ -30,19 +32,49 @@ class viterbi(object):
     def viterbi_all_data(self):
         predict_dict = {}
 
-        with open(self.training_file) as training:
+        with open(self.predict_file) as predict:
             sequence_index = 0
-            for sequence in training:
-                print('{}: Start viterbi on sequence index {}: \n {}'.format(time.asctime(time.localtime(time.time())),
-                                                                             sequence_index, sequence))
+            for sequence in predict:
+                print('{}: Start viterbi on sequence index {}'.format(time.asctime(time.localtime(time.time())),
+                                                                      sequence_index))
                 word_tag_list = sequence.split(',')
                 if '\n' in word_tag_list[len(word_tag_list) - 1]:
                     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
                 if '' in word_tag_list:
                     word_tag_list.remove('')
-                viterbi_result = self.viterbi_sequence(word_tag_list)
+                n = len(word_tag_list)
+                prediction = {}
+                word_tag_list_to_predict = word_tag_list
+                if self.use_majority_vote:
+                    number_of_dicts = 3
+                else:
+                    number_of_dicts = 1
+                for i in range(0, number_of_dicts):
+                    prediction[i] = self.viterbi_sequence(word_tag_list_to_predict)
+                    word_tag_list_to_predict = word_tag_list_to_predict[1:len(word_tag_list_to_predict)]
+                most_common_tags = range(n)
+                for word_index in range(2, n):
+                    compare_list = []
+                    for predict_dictionary in range(0, number_of_dicts):
+                        compare_list.append(prediction[predict_dictionary][word_index - predict_dictionary])
+                        # list_index - predict_dict: to get to the right place in the relevant dictionary
+                        # (because the word get different index in each dictionary)
+                    count = Counter(compare_list)
+                    most_common_tags[word_index] = count.most_common()[0][0]
+                # predict the first two tags:
+                word_tag_1 = word_tag_list[1].split('_')
+                word_tag_0 = word_tag_list[0].split('_')
+                if most_common_tags[2] in range(1, 5):
+                    most_common_tags[1] = int(self.word_tag_dict[word_tag_1[0]][0])
+                    most_common_tags[0] = int(self.word_tag_dict[word_tag_0[0]][0])
+                elif most_common_tags[2] in range(5, 9):
+                    most_common_tags[1] = int(self.word_tag_dict[word_tag_1[0]][1])
+                    most_common_tags[0] = int(self.word_tag_dict[word_tag_0[0]][1])
+                else:
+                    print('Error: prediction is not in (1,8)')
+
                 seq_word_tag_predict = []
-                for idx_tag, tag in viterbi_result.items():
+                for idx_tag, tag in enumerate(most_common_tags):
                     if tag == 0 or tag == '0' or tag == -1 or tag == '-1':
                         print('Error: tag is: {}'.format(tag))
                     word = word_tag_list[idx_tag].split('_')[0]
@@ -109,20 +141,20 @@ class viterbi(object):
                         if self.model_type == 'hmm':  # for HMM calc q*e
                             qe = self.calc_qe(v, u, w, x_k)
                             calc_pi = w_u_pi * qe
+
+                        elif self.model_type == 'memm':  # for MEMM calc q
                             tags_for_matrix = [v, u, w]
                             if '0' in tags_for_matrix:
                                 for tag_index, tag in enumerate(tags_for_matrix):
                                     if tag == '0':
                                         tags_for_matrix[tag_index] = '#'
-
-                        elif self.model_type == 'memm':  # for MEMM calc q
-                            print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
-                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(tags_for_matrix[0], tags_for_matrix[1],
-                                                                          tags_for_matrix[2], x_k_3, x_k_2, x_k_1,
-                                                                          x_k_p_3, x_k_p_2, x_k_p_1, x_k))
+                            # print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
+                            #       'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(tags_for_matrix[0], tags_for_matrix[1],
+                            #                                               tags_for_matrix[2], x_k_3, x_k_2, x_k_1,
+                            #                                               x_k_p_3, x_k_p_2, x_k_p_1, x_k))
                             if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '' \
                                     or x_k_p_3 == '\n' or x_k_p_2 == '\n' or x_k_p_1 == '\n':
-                                reut = 1
+                                print('Error: x_p_i is "" or \n')
                             q = self.calc_q(tags_for_matrix[0], tags_for_matrix[1], tags_for_matrix[2], x_k_3, x_k_2,
                                             x_k_1, x_k_p_3, x_k_p_2, x_k_p_1, x_k)
                             calc_pi = w_u_pi * q
@@ -133,6 +165,9 @@ class viterbi(object):
                         if calc_pi > calc_max_pi:
                             calc_max_pi = calc_pi
                             calc_argmax_pi = int(w)
+                        if x_k == 'A':
+                            if calc_argmax_pi in [7, '7']:
+                                reut = 1
 
                     if calc_argmax_pi == 0:
                         reut = 1
@@ -217,3 +252,17 @@ class viterbi(object):
             tag_exp_dict[tag] = numerators  # save in order to get tag_exp_dict[v]
 
         return tag_exp_dict[v] / float(sum_denominator)
+
+    def write_result_doc(self):
+
+        file_name = self.write_file_name
+        f = open(file_name, 'w')
+
+        for sequence_index, sequence_list in self.viterbi_result.iteritems():
+            for idx_inner, word_tag_string in enumerate(sequence_list):
+                f.write(word_tag_string + ',')
+            f.write('\n')  # finish sentences
+        f.close()
+
+        return
+
