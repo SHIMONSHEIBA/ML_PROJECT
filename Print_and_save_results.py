@@ -58,13 +58,12 @@ class print_save_results:
             for sequence in training:
                 include_gen = -1
                 word_tag_list = sequence.split(',')
-
+                if '\n' in word_tag_list[len(word_tag_list) - 1]:
+                    word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
+                if '' in word_tag_list:
+                    word_tag_list.remove('')
                 for i, val in enumerate(word_tag_list):
                     word_tag_tuple = val.split('_')
-                    if '\n' in word_tag_list[len(word_tag_list) - 1]:
-                        word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
-                    if '' in word_tag_list:
-                        word_tag_list.remove('')
                     # if '\n' in word_tag_tuple[1]:
                     #     word_tag_tuple[1] = word_tag_tuple[1][:1]
                     predict_item = predicted_word_tag[sequence_index][i].split('_')
@@ -76,11 +75,15 @@ class print_save_results:
                         print('problem miss between prediction and test word indexes')
                     if predict_tag != word_tag_tuple[1]:  # tag miss
                         miss += 1
+                        if word_tag_tuple[1] not in ['1', '2', '3', '4', '5', '6', '7', '8', 1, 2, 3, 4, 5, 6, 7, 8]:
+                            reut = 1
                         confusion_mat_key = str(word_tag_tuple[1]) + '_' + str(predict_tag)  # real tag _ prediction tag
                         self.confusion_matrix[confusion_mat_key] += 1
 
                     else:
                         hit += 1
+                        if word_tag_tuple[1] not in ['1', '2', '3', '4', '5', '6', '7', '8', 1, 2, 3, 4, 5, 6, 7, 8]:
+                            reut = 1
                         confusion_mat_key = str(word_tag_tuple[1]) + '_' + str(predict_tag)  # trace add
                         self.confusion_matrix[confusion_mat_key] += 1
 
@@ -134,7 +137,7 @@ class print_save_results:
         file_name = self.write_file_name
         f = open(file_name, 'w')
 
-        for sequence_index, sequence_list in self.viterbi_result.iteritems():
+        for sequence_index, sequence_list in self.viterbi_result.items():
             for idx_inner, word_tag_string in enumerate(sequence_list):
                 f.write(word_tag_string+',')
             f.write('\n')                                           # finish sentences

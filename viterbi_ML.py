@@ -38,7 +38,7 @@ class viterbi(object):
                 word_tag_list = sequence.split(',')
                 if '\n' in word_tag_list[len(word_tag_list) - 1]:
                     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
-                if '' in word_tag_list:
+                while '' in word_tag_list:
                     word_tag_list.remove('')
                 viterbi_result = self.viterbi_sequence(word_tag_list)
                 seq_word_tag_predict = []
@@ -109,17 +109,17 @@ class viterbi(object):
                         if self.model_type == 'hmm':  # for HMM calc q*e
                             qe = self.calc_qe(v, u, w, x_k)
                             calc_pi = w_u_pi * qe
+
+                        elif self.model_type == 'memm':  # for MEMM calc q
                             tags_for_matrix = [v, u, w]
                             if '0' in tags_for_matrix:
                                 for tag_index, tag in enumerate(tags_for_matrix):
                                     if tag == '0':
                                         tags_for_matrix[tag_index] = '#'
-
-                        elif self.model_type == 'memm':  # for MEMM calc q
-                            print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
-                                  'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(tags_for_matrix[0], tags_for_matrix[1],
-                                                                          tags_for_matrix[2], x_k_3, x_k_2, x_k_1,
-                                                                          x_k_p_3, x_k_p_2, x_k_p_1, x_k))
+                            # print('memm_v:{}, memm_u:{}, memm_w:{}, x_k_3:{}, x_k_2:{}, x_k_1:{}, x_k_p_3:{},'
+                            #       'x_k_p_2:{}, x_k_p_1:{}, x_k:{}'.format(tags_for_matrix[0], tags_for_matrix[1],
+                            #                                               tags_for_matrix[2], x_k_3, x_k_2, x_k_1,
+                            #                                               x_k_p_3, x_k_p_2, x_k_p_1, x_k))
                             if x_k_p_3 == '' or x_k_p_2 == '' or x_k_p_1 == '' \
                                     or x_k_p_3 == '\n' or x_k_p_2 == '\n' or x_k_p_1 == '\n':
                                 reut = 1
@@ -134,8 +134,9 @@ class viterbi(object):
                             calc_max_pi = calc_pi
                             calc_argmax_pi = int(w)
 
-                    if calc_argmax_pi == 0:
-                        reut = 1
+                        if x_k == 'A':
+                            if calc_argmax_pi in ['7' , 7]:
+                                reut = 1
                     # print int(u), int(v)
                     pi[k, int(u), int(v)] = calc_max_pi  # store the max(pi)
                     bp[k, int(u), int(v)] = calc_argmax_pi  # store the argmax(pi)
@@ -179,6 +180,12 @@ class viterbi(object):
 
             for k in range(n-2, 0, -1):
                 seq_word_tag_predict[k - 1] = bp[k+2, seq_word_tag_predict[k], seq_word_tag_predict[k+1]]
+                x_k_m_1 = word_tag_list[k - 1].split('_')[0]
+                if (x_k_m_1 == 'A' and seq_word_tag_predict[k - 1] not in ['1' , 1, '5', 5]) or\
+                        (x_k_m_1 == 'C' and seq_word_tag_predict[k - 1] not in ['2', 2, '6', 6]) or\
+                        (x_k_m_1 == 'G' and seq_word_tag_predict[k - 1] not in ['3', 3, '7', 7]) or\
+                        (x_k_m_1 == 'T' and seq_word_tag_predict[k - 1] not in ['4', 4, '8', 8]):
+                    reut = 1
 
             return seq_word_tag_predict
 
