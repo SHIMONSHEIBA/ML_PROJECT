@@ -84,17 +84,31 @@ class HMM(object):
         sequence_index = 0
         print '{}: Start build transition and emission matrices'.format(time.asctime(time.localtime(time.time())))
         for chrome in self.chrome_list:
+            print '{}: Start train on chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
             training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
-            with open(training_file) as training:
+            with open(training_file, 'r') as training:
                 for sequence in training:
                     sequence_index += 1
                     word_tag_list = sequence.split(',')
+                    # handel , in the end of the sequence:
+                    # if '\n' in word_tag_list[len(word_tag_list) - 1]:
+                    #     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
+                    while ' ' in word_tag_list:
+                        word_tag_list.remove(' ')
+                    while '' in word_tag_list:
+                        word_tag_list.remove('')
+                    while '\n' in word_tag_list:
+                        word_tag_list.remove('\n')
                     # define two first word_tags for some features
                     first_tag = '#'
                     second_tag = '#'
                     previous_tag = '0'
                     for word_in_seq_index, word_tag in enumerate(word_tag_list):
                         word_tag_tuple = word_tag.split('_')
+                        if len(word_tag_tuple) == 1:
+                            reut = 1
+                        if word_in_seq_index == len(word_tag_list)-1 and '\n' not in word_tag_tuple[1]:
+                            print('Error: n not in last tuple')
                         if '\n' in word_tag_tuple[1]:  # end of sequence
                             current_tag = word_tag_tuple[1][:1]
                             word_tag = word_tag_tuple[0] + '_' + current_tag

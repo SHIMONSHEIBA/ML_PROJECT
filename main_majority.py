@@ -4,7 +4,7 @@ from Print_and_save_results import print_save_results
 import time
 from datetime import datetime
 import logging
-from MEMM_try import MEMM
+
 
 LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileMajority150_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
@@ -28,7 +28,7 @@ def main():
         test_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
         print '{}: Start viterbi for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
         viterbi_obj = viterbi(hmm, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
-                              phase_number=2, use_majority_vote=True)
+                              phase_number=1, use_majority_vote=True)
         viterbi_result = viterbi_obj.viterbi_all_data(chrome)
 
         print('start evaluation')
@@ -59,5 +59,3 @@ if __name__ == "__main__":
         chrome_test_list = [str(test_chrome)]
         print chrome_test_list
         main()
-
-

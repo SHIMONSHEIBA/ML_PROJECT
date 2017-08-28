@@ -27,7 +27,7 @@ class NonStructureFeatures:
                      'Tyr': ['414', '412'], 'stop': ['411', '413', '431'], 'His': ['214', '212'], 'Gin': ['211', '213'],
                      'Asn': ['114', '112'], 'Lys': ['111', '113'], 'Asp': ['314', '312'], 'Glu': ['311', '313'],
                      'Cys': ['434', '432'], 'Trp': ['433'], 'Arg': ['234', '232', '231', '233', '131', '133'],
-                     'Gly': ['334', '332', '331', '333']}
+                     'Gly': ['334', '332', '331', '333'], 'start': ['ATG']}
 
     three_words = list(itertools.chain.from_iterable(amino_mapping.values()))
     three_words.sort()

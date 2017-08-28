@@ -3,11 +3,13 @@ import time
 import math
 import itertools
 from collections import Counter
+import csv
+from datetime import datetime
 
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
-    def __init__(self, model, model_type, data_file, is_log, use_stop_prob, use_majority_vote=False, w=0):
+    def __init__(self, model, model_type, data_file, is_log, use_stop_prob, phase_number, use_majority_vote=False, w=0):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.model_type = model_type
         if model_type == 'hmm':
@@ -22,6 +24,10 @@ class viterbi(object):
         self.word_tag_dict = model.word_tag_dict
         self.use_stop_prob = use_stop_prob
         self.use_majority_vote = use_majority_vote
+        if self.use_majority_vote:
+            self.number_of_dicts = 3
+        else:
+            self.number_of_dicts = 1
         if model_type == 'memm':
             self.history_tag_feature_vector = model.history_tag_feature_vector
         else:
@@ -29,10 +35,10 @@ class viterbi(object):
         if is_log:
             self.transition_mat = {key: math.log10(value) for key, value in self.transition_mat.items()}
 
-    def viterbi_all_data(self):
+    def viterbi_all_data(self, chrome):
         predict_dict = {}
 
-        with open(self.predict_file) as predict:
+        with open(self.predict_file, 'r') as predict:
             sequence_index = 0
             for sequence in predict:
                 print('{}: Start viterbi on sequence index {}'.format(time.asctime(time.localtime(time.time())),
@@ -43,20 +49,18 @@ class viterbi(object):
                 if '' in word_tag_list:
                     word_tag_list.remove('')
                 n = len(word_tag_list)
-                prediction = {}
+                majority_vote_dict = {}
                 word_tag_list_to_predict = word_tag_list
-                if self.use_majority_vote:
-                    number_of_dicts = 3
-                else:
-                    number_of_dicts = 1
-                for i in range(0, number_of_dicts):
-                    prediction[i] = self.viterbi_sequence(word_tag_list_to_predict)
+
+                for i in range(0, self.number_of_dicts):
+                    majority_vote_dict[(sequence_index, i)] = self.viterbi_sequence(word_tag_list_to_predict)
                     word_tag_list_to_predict = word_tag_list_to_predict[1:len(word_tag_list_to_predict)]
                 most_common_tags = range(n)
                 for word_index in range(2, n):
                     compare_list = []
-                    for predict_dictionary in range(0, number_of_dicts):
-                        compare_list.append(prediction[predict_dictionary][word_index - predict_dictionary])
+                    for predict_dictionary in range(0, self.number_of_dicts):
+                        compare_list.append(majority_vote_dict[(sequence_index, predict_dictionary)]
+                                            [word_index - predict_dictionary])
                         # list_index - predict_dict: to get to the right place in the relevant dictionary
                         # (because the word get different index in each dictionary)
                     count = Counter(compare_list)
@@ -74,13 +78,45 @@ class viterbi(object):
                     print('Error: prediction is not in (1,8)')
 
                 seq_word_tag_predict = []
+                seq_word_tag_predict_majority = {}
                 for idx_tag, tag in enumerate(most_common_tags):
                     if tag == 0 or tag == '0' or tag == -1 or tag == '-1':
                         print('Error: tag is: {}'.format(tag))
                     word = word_tag_list[idx_tag].split('_')[0]
                     prediction = str(word + '_' + str(tag))
                     seq_word_tag_predict.append(prediction)
+                    # if idx_tag == 0:
+                    #     seq_word_tag_predict_majority[self.number_of_dicts] = [prediction]
+                    #     seq_word_tag_predict_majority[self.number_of_dicts] = [word_tag_list[idx_tag]]
+                    # else:
+                    #     seq_word_tag_predict_majority[self.number_of_dicts].append(prediction)
+                    #     seq_word_tag_predict_majority[self.number_of_dicts].append(word_tag_list[idx_tag])
+                    for predict_dictionary in range(0, self.number_of_dicts):
+                        if self.number_of_dicts > 0:  # using majority vote
+                            if predict_dictionary == (self.number_of_dicts-2) and idx_tag < predict_dictionary \
+                                    or predict_dictionary == (self.number_of_dicts-1) and idx_tag < predict_dictionary:
+                                if idx_tag == 0:  # create the list
+                                    seq_word_tag_predict_majority[(sequence_index, predict_dictionary)] = \
+                                        ['not_relevant']
+                                    continue
+                                elif idx_tag < predict_dictionary:
+                                    # if idx_tag < predict_dictionary there is no prediction
+                                    seq_word_tag_predict_majority[(sequence_index, predict_dictionary)].\
+                                        append('not_relevant')
+                                    continue
+                        predict = majority_vote_dict[(sequence_index, predict_dictionary)][idx_tag - predict_dictionary]
+                        prediction = str(word + '_' + str(predict))
+                        if idx_tag == 0:
+                            seq_word_tag_predict_majority[(sequence_index, predict_dictionary)] = [prediction]
+                        else:
+                            seq_word_tag_predict_majority[(sequence_index, predict_dictionary)].append(prediction)
+
                 predict_dict[sequence_index] = seq_word_tag_predict
+
+                seq_word_tag_predict_majority[(sequence_index, self.number_of_dicts)] = seq_word_tag_predict
+                seq_word_tag_predict_majority[(sequence_index, self.number_of_dicts + 1)] = word_tag_list
+
+                write_majority_doc(chrome, seq_word_tag_predict_majority, sequence_index)
                 # print '{}: prediction for sequence index {} is: {}'.format((time.asctime(time.localtime(time.time()))),
                 #                                                            sequence_index, seq_word_tag_predict)
                 sequence_index += 1
@@ -129,8 +165,6 @@ class viterbi(object):
                 x_k_p_1 = word_tag_list[k].split('_')[0]      # word k+1
             else:  # word in position n, no word in k+3 and k+2
                 x_k_p_3, x_k_p_2, x_k_p_1 = '#', '#', '#'  # word k+3 and k+2 and k+1
-            if k == n-3:
-                reut = 1
             x_k = word_tag_list[k-1].split('_')[0]
             for u in self.possible_tags(x_k_1):
                 for v in self.possible_tags(x_k):
@@ -165,12 +199,7 @@ class viterbi(object):
                         if calc_pi > calc_max_pi:
                             calc_max_pi = calc_pi
                             calc_argmax_pi = int(w)
-                        if x_k == 'A':
-                            if calc_argmax_pi in [7, '7']:
-                                reut = 1
 
-                    if calc_argmax_pi == 0:
-                        reut = 1
                     # print int(u), int(v)
                     pi[k, int(u), int(v)] = calc_max_pi  # store the max(pi)
                     bp[k, int(u), int(v)] = calc_argmax_pi  # store the argmax(pi)
@@ -253,16 +282,16 @@ class viterbi(object):
 
         return tag_exp_dict[v] / float(sum_denominator)
 
-    def write_result_doc(self):
 
-        file_name = self.write_file_name
-        f = open(file_name, 'w')
+def write_majority_doc(chrome, dict_seq_results, sequence_index):
+    write_file_name = 'C:\\gitprojects\\ML_PROJECT\\majority_vote\\chr' + chrome + '_majority_vote_results'
+    with open(write_file_name+'.csv', 'a') as csv_file:
+        writer = csv.writer(csv_file)
+        if sequence_index == 0:
+            writer.writerow(['sequence_index', 'Prediction number (last raw-true label, one before-final prediction)',
+                             'Prediction'])
+        for key, value in dict_seq_results.items():
+            writer.writerow([key[0], key[1], value])
 
-        for sequence_index, sequence_list in self.viterbi_result.iteritems():
-            for idx_inner, word_tag_string in enumerate(sequence_list):
-                f.write(word_tag_string + ',')
-            f.write('\n')  # finish sentences
-        f.close()
-
-        return
+    return
 

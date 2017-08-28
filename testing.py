@@ -4,11 +4,11 @@ import numpy as np
 
 word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8'], '#':['#']}
 
-feature_vector_length = 158
+first_word='A'
+second_word = 'G'
+current_word = 'A'
 
-print(np.zeros(shape=len(word_tag_dict), dtype = int))
+possible_tags = [word_tag_dict[first_word], word_tag_dict[second_word], word_tag_dict[current_word]]
 
-#print(np.zeros_like(np.arange(6)))
-
-
-#print(np.arange(3))
+for possible_tag_comb in list(product(*possible_tags)):
+    print(possible_tag_comb)
