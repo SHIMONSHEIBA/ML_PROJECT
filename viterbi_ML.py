@@ -46,7 +46,7 @@ class viterbi(object):
                 word_tag_list = sequence.split(',')
                 if '\n' in word_tag_list[len(word_tag_list) - 1]:
                     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
-                if '' in word_tag_list:
+                while '' in word_tag_list:
                     word_tag_list.remove('')
                 n = len(word_tag_list)
                 majority_vote_dict = {}
@@ -200,6 +200,8 @@ class viterbi(object):
                             calc_max_pi = calc_pi
                             calc_argmax_pi = int(w)
 
+                    if calc_argmax_pi == 0:
+                        reut = 1
                     # print int(u), int(v)
                     pi[k, int(u), int(v)] = calc_max_pi  # store the max(pi)
                     bp[k, int(u), int(v)] = calc_argmax_pi  # store the argmax(pi)
@@ -243,6 +245,12 @@ class viterbi(object):
 
             for k in range(n-2, 0, -1):
                 seq_word_tag_predict[k - 1] = bp[k+2, seq_word_tag_predict[k], seq_word_tag_predict[k+1]]
+                x_k_m_1 = word_tag_list[k - 1].split('_')[0]
+                if (x_k_m_1 == 'A' and seq_word_tag_predict[k - 1] not in ['1' , 1, '5', 5]) or\
+                        (x_k_m_1 == 'C' and seq_word_tag_predict[k - 1] not in ['2', 2, '6', 6]) or\
+                        (x_k_m_1 == 'G' and seq_word_tag_predict[k - 1] not in ['3', 3, '7', 7]) or\
+                        (x_k_m_1 == 'T' and seq_word_tag_predict[k - 1] not in ['4', 4, '8', 8]):
+                    reut = 1
 
             return seq_word_tag_predict
 

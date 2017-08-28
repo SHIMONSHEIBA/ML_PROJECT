@@ -12,8 +12,8 @@ LOG_FILENAME = datetime.now().strftime\
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
 def main():
-    chrome_train_list = ['1']#, '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-    chrome_test_list = ['13']#, '14', '15', '16', '17']
+    chrome_train_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+    chrome_test_list = ['13', '14', '15', '16', '17']
     logging.info('{}: Train list is: {}, test list is: {}'
                  .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
     print('{}: Start creating MEMM'.format(time.asctime(time.localtime(time.time()))))
