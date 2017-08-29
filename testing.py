@@ -1,14 +1,37 @@
+
 import itertools
-from itertools import product
-import numpy as np
+features_combination_list_sub = ['feature_word_tag', 'feature_word', 'feature_tag', 'feature_1', 'feature_2',
+                             'feature_3', 'feature_4', 'feature_5', 'feature_6', 'feature_7',
+                             'feature_8']
 
-word_tag_dict = {'A': ['1', '5'], 'C': ['2', '6'], 'G': ['3', '7'], 'T': ['4', '8'], '#':['#']}
+print(''.join(features_combination_list_sub))
 
-first_word='A'
-second_word = 'G'
-current_word = 'A'
+#features_combination_list = []
+#for perm in itertools.combinations(features_combination_list_sub, 5):
+#    features_combination_list.append(list(perm))
+#for perm in itertools.combinations(features_combination_list_sub, 6):
+#    features_combination_list.append(list(perm))
+#for perm in itertools.combinations(features_combination_list_sub, 7):
+#    features_combination_list.append(list(perm))
+#for perm in itertools.combinations(features_combination_list_sub, 8):
+#    features_combination_list.append(list(perm))
+#for perm in itertools.combinations(features_combination_list_sub, 9):
+#    features_combination_list.append(list(perm))
+#for perm in itertools.combinations(features_combination_list_sub, 10):
+#    features_combination_list.append(list(perm))
+#print(features_combination_list)
 
-possible_tags = [word_tag_dict[first_word], word_tag_dict[second_word], word_tag_dict[current_word]]
 
-for possible_tag_comb in list(product(*possible_tags)):
-    print(possible_tag_comb)
+#from itertools import chain, combinations
+#
+#def powerset(iterable):
+#    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+#    s = list(iterable)
+#    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+#
+#for result in powerset([1, 2, 3]):
+#    print(result)
+
+#results = list(powerset([1, 2, 3]))
+#print(results)
+
