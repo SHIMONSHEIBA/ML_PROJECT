@@ -6,6 +6,9 @@ import numpy as np
 from gradient_try import Gradient
 import logging
 from datetime import datetime
+import itertools
+import sys
+
 
 LOG_FILENAME = datetime.now().strftime\
     ('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileMEMM_%d_%m_%Y_%H_%M.log')
@@ -14,18 +17,46 @@ logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 def main():
     chrome_train_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     chrome_test_list = ['13', '14', '15', '16', '17']
+    features_combination_list_sub = ['feature_word_tag','feature_word','feature_tag','feature_1','feature_2',
+                                 'feature_3','feature_4','feature_5','feature_6','feature_7',
+                                 'feature_8']
+
+    features_combination_list = []
+    #for perm in itertools.combinations(features_combination_list_sub, 5):
+    #    features_combination_list.append(list(perm))
+    #for perm in itertools.combinations(features_combination_list_sub, 6):
+    #    features_combination_list.append(list(perm))
+    # for perm in itertools.combinations(features_combination_list_sub, 7):
+    #     features_combination_list.append(list(perm))
+    # for perm in itertools.combinations(features_combination_list_sub, 8):
+    #     features_combination_list.append(list(perm))
+    # for perm in itertools.combinations(features_combination_list_sub, 9):
+    #     features_combination_list.append(list(perm))
+    # for perm in itertools.combinations(features_combination_list_sub, 10):
+    #     features_combination_list.append(list(perm))
+    for perm in itertools.combinations(features_combination_list_sub, 2):
+        features_combination_list.append(list(perm))
+    for perm in itertools.combinations(features_combination_list_sub, 3):
+        features_combination_list.append(list(perm))
+    for perm in itertools.combinations(features_combination_list_sub, 4):
+        features_combination_list.append(list(perm))
+
     logging.info('{}: Train list is: {}, test list is: {}'
                  .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
     print('{}: Start creating MEMM'.format(time.asctime(time.localtime(time.time()))))
-    logging.info('{}: Start creating HMM'.format(time.asctime(time.localtime(time.time()))))
-    memm = MEMM(chrome_train_list)
+    logging.info('{}: Start creating MEMM'.format(time.asctime(time.localtime(time.time()))))
+    for features_combination in features_combination_list:
 
-    gradient_class = Gradient(memm=memm, lamda=1)
-    gradient_result = gradient_class.gradient_descent()
-    weights = gradient_result.x
-    #np.savetxt(gradient_file, weights, delimiter=",")
+        logging.info('MEMM for features : {}'.format(features_combination))
 
-    for chrome in chrome_test_list:
+        memm = MEMM(chrome_train_list, features_combination)
+
+        gradient_class = Gradient(memm=memm, lamda=1)
+        gradient_result = gradient_class.gradient_descent()
+        weights = gradient_result.x
+        #np.savetxt(gradient_file, weights, delimiter=",")
+
+        for chrome in chrome_test_list:
 
         test_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
         print('{}: Start viterbi for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome))
@@ -45,12 +76,13 @@ def main():
                                           confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
         word_results_dictionary, seq_results_dictionary = evaluate_obj.run()
 
-        print(word_results_dictionary)
-        print(seq_results_dictionary)
-        logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
-                     format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
-                            seq_results_dictionary))
-
+            print(word_results_dictionary)
+            print(seq_results_dictionary)
+            logging.info('Following Evaluation results for features {}'.format(features_combination))
+            logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
+                         format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
+                                seq_results_dictionary))
+            logging.info('-----------------------------------------------------------------------------------')
 
 if __name__ == "__main__":
     main()
