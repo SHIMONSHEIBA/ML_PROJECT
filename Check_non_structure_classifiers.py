@@ -43,9 +43,9 @@ op.add_option("--report",
 op.add_option("--confusion_matrix",
               action="store_true", dest="print_cm", default=True,
               help="Print the confusion matrix.")
-op.add_option("--use_CV",
-              action='store', dest="use_CV", default=True,
-              help="Run cross validation, if False: train on some chromes, and predict others")
+# op.add_option("--use_CV",
+#               action='store', dest="use_CV", default=False,
+#               help="Run cross validation, if False: train on some chromes, and predict others")
 op.add_option("--k_fold",
               action='store', type=int, default=100,
               help='k_fold when using cross validation')
@@ -61,11 +61,12 @@ print()
 
 ###############################################################################
 class Classifier:
-    def __init__(self, features_obj):
+    def __init__(self, features_obj, use_CV):
         self.X_train =\
             features_obj.all_train_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
         self.Y_train = features_obj.all_train_samples_features['IsGen']
-        if opts.use_CV:
+        self.use_CV = use_CV
+        if self.use_CV:
             self.X_test = \
                 features_obj.all_test_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
             self.Y_test = features_obj.all_train_samples_features['IsGen']
@@ -85,7 +86,7 @@ class Classifier:
         t0 = time.time()
         if clf_name == 'GaussianNB':
             self.X_train = self.X_train.toarray()
-        if opts.use_CV:  # run cross validation
+        if self.use_CV:  # run cross validation
             predicted = cross_val_predict(clf, self.X_train, self.Y_train, cv=opts.k_fold)
             score = metrics.accuracy_score(self.Y_train, predicted)
         else:  # fir on train and predict test data
