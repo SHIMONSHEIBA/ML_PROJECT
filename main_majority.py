@@ -7,6 +7,21 @@ import logging
 from MEMM_try import MEMM
 from gradient_try import Gradient
 from collections import Counter
+from NonStructureFeatures_perBase import NonStructureFeatures_perBase
+from Check_non_structure_classifiers import Classifier
+from sklearn.linear_model import RidgeClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB, GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import NearestCentroid
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+from sklearn.model_selection import cross_val_predict, LeaveOneOut
+from sklearn.svm import SVC
 
 
 LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileMajority150_%d_%m_%Y_%H_%M.log')
@@ -28,6 +43,19 @@ def main():
     gradient_class = Gradient(memm=memm, lamda=1)
     gradient_result = gradient_class.gradient_descent()
     weights = gradient_result.x
+    # Train non-structure classifier
+    # need to return a dictionary that each seq in chrome_test_list have the first base prediction
+    # in the format: {seq_index:base_tag}
+    # svm_results - SVM(chrome_train_list, chrome_test_list)
+    NonStructureFeatures_perBase_obj = NonStructureFeatures_perBase(chrome_train_list)
+    classifier_obj = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
+    NonStructureModels = {}
+    for clf, name in (
+            (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
+            (Perceptron(n_iter=50), "Perceptron"),
+            (MultinomialNB(alpha=.01), 'MultinomialNB')):
+        NonStructureModels[name] = clf.fit(classifier_obj.X_train, classifier_obj.Y_train)
+
 
     use_stop_prob = False
     logging.info('{}: use stop probability is: {}'.format(time.asctime(time.localtime(time.time())), use_stop_prob))
@@ -50,17 +78,29 @@ def main():
         # Train non-structure classifier
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
-        # svm_results - SVM(chrome_train_list, chrome_test_list)
         chrome_len = len(memm_viterbi_result.keys())
-        most_common_tags_first_base = range(chrome_len)
+        NonStructurePredictions = {k: [] for k in range(chrome_len)}
+        for name, model in NonStructureModels.items():
+            prediction = model.predict(classifier_obj.X_test)
+            for sequence_inner_index in range(0, classifier_obj.X_test.shape[0]):
+                NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index])
+
+        most_common_tags_first_base = {}
         for sequence_index in range(chrome_len):
             compare_list = []
             # add each model prediction for the first base:
             compare_list.append(hmm_viterbi_result[sequence_index])
             compare_list.append(memm_viterbi_result[sequence_index])
+            word_in_index = compare_list[0].split('_')[0]
+            for tags in NonStructurePredictions.get(sequence_index):
+                for model in range(3):
+                    if tags[model] == 1:
+                        compare_list.append(word_in_index + '_' + hmm.word_tag_dict[word_in_index[0]][0])
+                    elif tags[model] == -1:
+                        compare_list.append(word_in_index + '_' + hmm.word_tag_dict[word_in_index[0]][1])
             # compare_list.append(svm_results[sequence_index])
             count = Counter(compare_list)
-            #TODO: change most_common_tags_first_base to be dict
+
             most_common_tags_first_base[sequence_index] = count.most_common()[0][0]
         print '{}: Start viterbi HMM for chrome: {} in phase 2'.format((time.asctime(time.localtime(time.time()))),
                                                                        chrome)

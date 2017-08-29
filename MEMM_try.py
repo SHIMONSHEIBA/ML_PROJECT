@@ -35,7 +35,7 @@ class MEMM:
         self.words_dict = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
 
         self.chrome_list = chrome_train_list
-        self.history_tag_feature_vector = history_tag_feature_vector
+        self.is_create_history_tag_feature_vector = history_tag_feature_vector
 
         # used features
         self.features_combination = features_combination
@@ -703,7 +703,7 @@ class MEMM:
                 indexes_vector[feature_idx] = 1
 
         # efficient representation
-        if self.history_tag_feature_vector:  # non structure classifier
+        if self.is_create_history_tag_feature_vector:  # non structure classifier
             return indexes_vector
         else:  # memm
             indexes_vector_zip = csr_matrix(indexes_vector)

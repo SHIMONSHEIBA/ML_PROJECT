@@ -201,10 +201,12 @@ class Classifier:
 
 
 if __name__ == '__main__':
-    chrome_train_list = ['17', '1', '6', '3', '9', '8', '5', '11', '14', '2', '13', '10', '16', '12', '7', '15', '4']
-    chrome_test_list = ['17']
-    logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}. Cross validation'
-                 .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
-    NonStructureFeatures_obj = NonStructureFeatures(chrome_train_list, chrome_test_list)
-    classifier = Classifier(NonStructureFeatures_obj)
-    classifier.ModelsIteration()
+    all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+    for test_chrome in range(1, 18):
+        chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
+        chrome_test_list = [str(test_chrome)]
+        logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}. Cross validation'
+                     .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
+        NonStructureFeatures_obj = NonStructureFeatures(chrome_train_list, chrome_test_list)
+        classifier = Classifier(NonStructureFeatures_obj, use_CV=False)
+        classifier.ModelsIteration()
