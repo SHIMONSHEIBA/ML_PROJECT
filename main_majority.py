@@ -83,7 +83,7 @@ def main():
         chrome_len = len(memm_viterbi_result.keys())
         NonStructurePredictions = {k: [] for k in range(chrome_len)}
         NonStructureFeatures_perBase_test_obj = \
-            NonStructureFeatures_perBase(is_train=False, chrome_test_list=chrome,
+            NonStructureFeatures_perBase(is_train=False, chrome_test_list=[chrome],
                                          train_object=NonStructureFeatures_perBase_train_obj)
         for name, model in NonStructureModels.items():
             prediction = model.predict(NonStructureFeatures_perBase_test_obj.X_test)

@@ -6,6 +6,9 @@ from datetime import datetime
 from Check_non_structure_classifiers import Classifier
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import RidgeClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB, GaussianNB
 
 LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileNonStructure_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
@@ -24,8 +27,8 @@ class NonStructureFeatures_perBase:
                      .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
         logging.info('{}: Features are: {}'
                      .format(time.asctime(time.localtime(time.time())), features_list))
-        print('{}: Start creating Features (using MEMM)'.format(time.asctime(time.localtime(time.time()))))
-        logging.info('{}: Start creating Features (using MEMM)'.format(time.asctime(time.localtime(time.time()))))
+        print('{}: Non structure: Start creating Features (using MEMM)'.format(time.asctime(time.localtime(time.time()))))
+        logging.info('{}: Non structure: Start creating Features (using MEMM)'.format(time.asctime(time.localtime(time.time()))))
         logging.info('MEMM for features : {}'.format(features_list))
 
         # just create the feature vector indexes
@@ -151,9 +154,27 @@ class NonStructureFeatures_perBase:
 
 
 def main():
-    NonStructureFeatures_perBase_obj = \
-        NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list,
-                                     chrome_test_list=chrome_test_list)
+    NonStructureFeatures_perBase_train_obj =\
+        NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list)
+    # NonStructureModels = {}
+    # for clf, name in (
+    #         (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
+    #         (Perceptron(n_iter=50), "Perceptron"),
+    #         (MultinomialNB(alpha=.01), 'MultinomialNB')):
+    #     NonStructureModels[name] = clf.fit(NonStructureFeatures_perBase_train_obj.X_train,
+    #                                        NonStructureFeatures_perBase_train_obj.Y_train)
+    # NonStructurePredictions = {k: [] for k in range(428)}
+    # chrome = '17'
+    # NonStructureFeatures_perBase_test_obj = \
+    #     NonStructureFeatures_perBase(is_train=False, chrome_test_list=[chrome],
+    #                                  train_object=NonStructureFeatures_perBase_train_obj)
+    # for name, model in NonStructureModels.items():
+    #     prediction = model.predict(NonStructureFeatures_perBase_test_obj.X_test)
+    #     for sequence_inner_index in range(0, NonStructureFeatures_perBase_test_obj.X_test.shape[0]):
+    #         NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index][0])
+    # NonStructureFeatures_perBase_obj = \
+    #     NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list,
+    #                                  chrome_test_list=chrome_test_list)
     # classifier = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
     # classifier.ModelsIteration()
 
@@ -183,6 +204,6 @@ if __name__ == "__main__":
     # for test_chrome in range(1, 18):
     #     chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
     #     chrome_test_list = [str(test_chrome)]
-    # chrome_train_list = ['17']
-    # chrome_test_list = ['17']
+    chrome_train_list = ['17']
+    chrome_test_list = ['17']
     main()
