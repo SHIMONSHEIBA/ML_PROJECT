@@ -85,4 +85,10 @@ def main():
             logging.info('-----------------------------------------------------------------------------------')
 
 if __name__ == "__main__":
-    main()
+    all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+    for test_chrome in range(1, 18):
+        chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
+        print chrome_train_list
+        chrome_test_list = [str(test_chrome)]
+        print chrome_test_list
+        main()

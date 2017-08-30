@@ -70,13 +70,15 @@ def main():
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         hmm_viterbi_result = viterbi_obj.viterbi_all_data(chrome)
-        print '{}: Start viterbi MEMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))), chrome)
+        print '{}: Start viterbi MEMM for chrome: {} phase 1'.\
+            format((time.asctime(time.localtime(time.time()))), chrome)
         viterbi_obj = viterbi(memm, 'memm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False, w=weights)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         memm_viterbi_result = viterbi_obj.viterbi_all_data(chrome)
-        print '{}: Start train non-structure classifier for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
+        print '{}: Start train non-structure classifier for chrome: {}'.\
+            format((time.asctime(time.localtime(time.time()))), chrome)
         # Train non-structure classifier
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
@@ -88,7 +90,7 @@ def main():
         for name, model in NonStructureModels.items():
             prediction = model.predict(NonStructureFeatures_perBase_test_obj.X_test)
             for sequence_inner_index in range(0, NonStructureFeatures_perBase_test_obj.X_test.shape[0]):
-                NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index][0])
+                NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index])
 
         most_common_tags_first_base = {}
         for sequence_index in range(chrome_len):
