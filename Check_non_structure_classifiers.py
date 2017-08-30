@@ -43,9 +43,9 @@ op.add_option("--report",
 op.add_option("--confusion_matrix",
               action="store_true", dest="print_cm", default=True,
               help="Print the confusion matrix.")
-op.add_option("--use_CV",
-              action='store', dest="use_CV", default=True,
-              help="Run cross validation, if False: train on some chromes, and predict others")
+# op.add_option("--use_CV",
+#               action='store', dest="use_CV", default=False,
+#               help="Run cross validation, if False: train on some chromes, and predict others")
 op.add_option("--k_fold",
               action='store', type=int, default=100,
               help='k_fold when using cross validation')
@@ -61,11 +61,12 @@ print()
 
 ###############################################################################
 class Classifier:
-    def __init__(self, features_obj):
+    def __init__(self, features_obj, use_CV):
         self.X_train =\
             features_obj.all_train_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
         self.Y_train = features_obj.all_train_samples_features['IsGen']
-        if opts.use_CV:
+        self.use_CV = use_CV
+        if self.use_CV:
             self.X_test = \
                 features_obj.all_test_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
             self.Y_test = features_obj.all_train_samples_features['IsGen']
@@ -85,7 +86,7 @@ class Classifier:
         t0 = time.time()
         if clf_name == 'GaussianNB':
             self.X_train = self.X_train.toarray()
-        if opts.use_CV:  # run cross validation
+        if self.use_CV:  # run cross validation
             predicted = cross_val_predict(clf, self.X_train, self.Y_train, cv=opts.k_fold)
             score = metrics.accuracy_score(self.Y_train, predicted)
         else:  # fir on train and predict test data
@@ -200,10 +201,12 @@ class Classifier:
 
 
 if __name__ == '__main__':
-    chrome_train_list = ['17', '1', '6', '3', '9', '8', '5', '11', '14', '2', '13', '10', '16', '12', '7', '15', '4']
-    chrome_test_list = ['17']
-    logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}. Cross validation'
-                 .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
-    NonStructureFeatures_obj = NonStructureFeatures(chrome_train_list, chrome_test_list)
-    classifier = Classifier(NonStructureFeatures_obj)
-    classifier.ModelsIteration()
+    all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+    for test_chrome in range(1, 18):
+        chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
+        chrome_test_list = [str(test_chrome)]
+        logging.info('{}: Train list is (short chromes): {}, test list is (long chromes): {}. Cross validation'
+                     .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
+        NonStructureFeatures_obj = NonStructureFeatures(chrome_train_list, chrome_test_list)
+        classifier = Classifier(NonStructureFeatures_obj, use_CV=False)
+        classifier.ModelsIteration()

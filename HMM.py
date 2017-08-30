@@ -84,20 +84,47 @@ class HMM(object):
         sequence_index = 0
         print '{}: Start build transition and emission matrices'.format(time.asctime(time.localtime(time.time())))
         for chrome in self.chrome_list:
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels\\chr' + chrome + '_label.csv'
-            with open(training_file) as training:
+            print '{}: Start train on chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
+            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            with open(training_file, 'r') as training:
                 for sequence in training:
                     sequence_index += 1
                     word_tag_list = sequence.split(',')
+                    # handel , in the end of the sequence:
+                    # if '\n' in word_tag_list[len(word_tag_list) - 1]:
+                    #     word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
+                    while ' ' in word_tag_list:
+                        word_tag_list.remove(' ')
+                    while '' in word_tag_list:
+                        word_tag_list.remove('')
+                    while '\n' in word_tag_list:
+                        word_tag_list.remove('\n')
                     # define two first word_tags for some features
                     first_tag = '#'
                     second_tag = '#'
                     previous_tag = '0'
                     for word_in_seq_index, word_tag in enumerate(word_tag_list):
+                        if word_tag not in ('A_1', 'A_5', 'C_2', 'C_6', 'G_3', 'G_7', 'T_4', 'T_8',
+                                            'A_1\n', 'A_5\n', 'C_2\n', 'C_6\n', 'G_3\n', 'G_7\n', 'T_4\n', 'T_8\n'):
+                            print('Error, word_tag is:{}').format(word_tag)
                         word_tag_tuple = word_tag.split('_')
+                        if len(word_tag_tuple) == 1:
+                            reut = 1
+                        # if word_in_seq_index == len(word_tag_list)-1 and '\n' not in word_tag_tuple[1]:
+                        #     print('Error: n not in last tuple')
                         if '\n' in word_tag_tuple[1]:  # end of sequence
                             current_tag = word_tag_tuple[1][:1]
                             word_tag = word_tag_tuple[0] + '_' + current_tag
+                            two_tags_end = current_tag + '_#'
+                            self.two_tags_dict[two_tags_end] += 1
+                            three_tags_end = current_tag + '_#' + '_#'
+                            self.three_tags_dict[three_tags_end] += 1
+                            three_tags_end_with_two_tags = previous_tag + '_' + current_tag + '_#'
+                            self.three_tags_dict[three_tags_end_with_two_tags] += 1
+                        elif word_in_seq_index == len(word_tag_list)-1 and '\n' not in word_tag_tuple[1]:
+                            print('Error: n not in last tuple')
+                            current_tag = word_tag_tuple[1]
+                            word_tag = word_tag_tuple[0] + '_' + word_tag_tuple[1]
                             two_tags_end = current_tag + '_#'
                             self.two_tags_dict[two_tags_end] += 1
                             three_tags_end = current_tag + '_#' + '_#'
@@ -186,7 +213,10 @@ class HMM(object):
             word_tag_list = word_tag.split('_')
             count_tag = self.one_tags_dict[word_tag_list[1]][0]
             self.emission_mat[word_tag_list[0] + '|' + word_tag_list[1]] = float(count_word_tag) / float(count_tag)
-            self.emission_mat_array[self.one_tags_dict[word_tag_list[1]][2], self.word_index[word_tag_list[0]]] = float(count_word_tag) / float(count_tag)
+            if float(count_word_tag) / float(count_tag) not in (0.0, 1.0):
+                print('Error: emission probability not 0 or 1')
+            self.emission_mat_array[self.one_tags_dict[word_tag_list[1]][2], self.word_index[word_tag_list[0]]] =\
+                float(count_word_tag) / float(count_tag)
         self.emission_mat_array[0, 0] = 1.0
 
 

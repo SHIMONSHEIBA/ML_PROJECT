@@ -40,29 +40,36 @@ class NonStructureFeatures:
 
         # build the type of features
         print('{}: Start building features from train'.format(time.asctime(time.localtime(time.time()))))
-        self.all_train_samples_features = self.build_features_from_train(self.chrome_train_list)
+        self.all_train_samples_features = self.build_features_from_data(self.chrome_train_list)
         print('{}: Start building features from test'.format(time.asctime(time.localtime(time.time()))))
-        self.all_test_samples_features = self.build_features_from_train(self.chrome_test_list)
+        self.all_test_samples_features = self.build_features_from_data(self.chrome_test_list)
 
-    def build_features_from_train(self, chrome_list):
+    def build_features_from_data(self, chrome_list):
         # In this function we are counting amount of instances from
         # each feature for statistics and feature importance
+        all_data_index = 0
         for chrome in chrome_list:
-            sequence_index = 0
             print('{}: Start train chrome number {}'.format(time.asctime(time.localtime(time.time())), chrome))
+            sequence_index = 0
             training_file = 'C:\\gitprojects\\ML_PROJECT\\data150\\chr' + chrome + '_data.csv'
-            # training_file = 'C:\\gitprojects\\ML project\\samples_small_data\\data_small.csv'
             # labels per seq
-            seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
-            # seq_labels_file_name = 'C:\\gitprojects\\ML project\\samples_small_data\\chr' + chrome + '_sample_label.xlsx'
+            # seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
+            seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\first_base_label\\chr' + chrome + '_first_label.xlsx'
             seq_label = pd.read_excel(seq_labels_file_name, header=None)
             seq_label_array = seq_label.as_matrix()
 
             with open(training_file) as training:
                 for sequence in training:
-                    print('{}: Start train seq number {} in chrome number {}'.
-                          format(time.asctime(time.localtime(time.time())), sequence_index, chrome))
                     vector_index = {}
+                    # label of the seq will be the first base tag
+                    tags_list = seq_label_array[sequence_index]
+                    first_tag = tags_list[0]
+                    if first_tag in range(1, 5):  # first base is part of a gene
+                        first_tag = 1
+                    elif first_tag in range(5, 9):  # first base is not part of a gene
+                        first_tag = -1
+                    else:
+                        print('Error: tag for sequence {} in chrome {} not in (1,8)'.format(sequence_index, chrome))
                     # word_tag_list = sequence.split(',')
                     sequence = sequence.replace(',', '')
                     # Calculate feature 1: number of occurrences per base
@@ -85,23 +92,25 @@ class NonStructureFeatures:
                     if sequence_index == (seq_label_array.size - 1):
                         reut = 1
 
-                    vector_index[('IsGen')] = (int(seq_label_array[sequence_index][0]))
+                    vector_index[('IsGen')] = first_tag  # (int(seq_label_array[sequence_index][0]))
                     data = vector_index.values()
                     labels = vector_index.keys()
 
                     featuresDF = pd.Series(data, index=labels)
 
-                    if sequence_index == 0:
+                    if all_data_index == 0:
                         all_samples_features = featuresDF
                     else:
                         all_samples_features = pd.concat([featuresDF, all_samples_features], axis=1)
+                    # update indexes - after each sequence
                     sequence_index += 1
+                    all_data_index += 1
 
         return all_samples_features.T
 
 
 def main():
-    NonStructureFeatures_obj = NonStructureFeatures(['1'], ['1'])
+    NonStructureFeatures_obj = NonStructureFeatures(['1', '2'], ['1'])
 
 if __name__ == '__main__':
     main()

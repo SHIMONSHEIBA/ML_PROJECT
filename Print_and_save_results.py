@@ -27,7 +27,8 @@ class print_save_results:
         self.eval_res = {}
 
     def run(self):
-        self.word_results_dictionary, self.seq_results_dictionary = self.eval_test_results(self.viterbi_result, self.data_file_name)
+        self.word_results_dictionary, self.seq_results_dictionary = self.eval_test_results(self.viterbi_result,
+                                                                                           self.data_file_name)
         self.write_result_doc()
         self.write_confusion_doc(True)  # write tags confusion matrix
         self.write_confusion_doc(False)  # write sequence label confusion matrix
@@ -35,6 +36,7 @@ class print_save_results:
         return self.word_results_dictionary, self.seq_results_dictionary
 
     def eval_test_results(self, predicted_word_tag, data_file_name):
+        # print('predicted_word_tag is: {}').format(predicted_word_tag)
         # predicted_values
         miss = 0
         hit = 0
@@ -54,21 +56,26 @@ class print_save_results:
                     self.all_seq_confusion_matrix[cur_key] = 0
 
         sequence_index = 0
-        with open(data_file_name) as training:  # real values
+        with open(data_file_name, 'r') as training:  # real values
             for sequence in training:
                 include_gen = -1
                 word_tag_list = sequence.split(',')
-                if '\n' in word_tag_list[len(word_tag_list) - 1]:
-                    word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
-                if '' in word_tag_list:
+                while ' ' in word_tag_list:
+                    word_tag_list.remove(' ')
+                while '' in word_tag_list:
                     word_tag_list.remove('')
+                while '\n' in word_tag_list:
+                    word_tag_list.remove('\n')
                 for i, val in enumerate(word_tag_list):
                     word_tag_tuple = val.split('_')
+                    if '\n' in word_tag_tuple[1]:  # end of sequence
+                        word_tag_tuple[1] = word_tag_tuple[1][:1]
                     # if '\n' in word_tag_tuple[1]:
                     #     word_tag_tuple[1] = word_tag_tuple[1][:1]
                     predict_item = predicted_word_tag[sequence_index][i].split('_')
-                    predict_word = predict_item[0]  # our predicted tag
-                    predict_tag = predict_item[1]
+                    # print('sequence_index is: {}, predict_item is: {}').format(sequence_index, predict_item)
+                    predict_word = predict_item[0]
+                    predict_tag = predict_item[1]  # our predicted tag
                     if include_gen == -1 and predict_tag in ['1', '2', '3', '4']:
                         include_gen = 1
                     if predict_word != word_tag_tuple[0]:
