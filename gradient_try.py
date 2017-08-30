@@ -96,7 +96,7 @@ class Gradient(object):
     def gradient_descent(self):
 
         result = minimize(method='L-BFGS-B', fun=self.loss, x0=self.w_init, jac=self.gradient,
-                          options={'disp': True, 'maxiter': 15, 'factr': 1e2})
+                          options={'disp': True, 'maxiter': 1, 'factr': 1e2})
         print('finished gradient')
         print(result.x)
         return result

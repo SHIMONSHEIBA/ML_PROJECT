@@ -10,11 +10,11 @@ from datetime import datetime
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
     def __init__(self, model, model_type, data_file, is_log, use_stop_prob, phase_number=1, use_majority_vote=False,
-                 w=0, prediction_for_phase2 = None):
+                 w=0, prediction_for_phase2=None):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.model_type = model_type
         self.phase_number = phase_number
-        self.prediction_for_phase2 = prediction_for_phase2
+        self.prediction_for_phase2 = prediction_for_phase2  # dictionary with prediction for the first base in each seq
         if model_type == 'hmm':
             self.transition_mat = model.transition_mat
             self.emission_mat = model.emission_mat
@@ -28,7 +28,7 @@ class viterbi(object):
         self.use_stop_prob = use_stop_prob
         self.use_majority_vote = use_majority_vote
         if self.use_majority_vote:
-            self.number_of_dicts = 3
+            self.number_of_dicts = 3  # number of predictions of first base and "move" seq left
         else:
             self.number_of_dicts = 1
         if model_type == 'memm':
@@ -65,27 +65,30 @@ class viterbi(object):
                         majority_vote_dict[(sequence_index, i)] =\
                             self.viterbi_sequence(word_tag_list_to_predict, sequence_index)
                         word_tag_list_to_predict = word_tag_list_to_predict[1:len(word_tag_list_to_predict)]
-                    most_common_tags = range(n)
-                    for word_index in range(2, n):
-                        compare_list = []
-                        for predict_dictionary in range(0, self.number_of_dicts):
-                            compare_list.append(majority_vote_dict[(sequence_index, predict_dictionary)]
-                                                [word_index - predict_dictionary])
-                            # list_index - predict_dict: to get to the right place in the relevant dictionary
-                            # (because the word get different index in each dictionary)
-                        count = Counter(compare_list)
-                        most_common_tags[word_index] = count.most_common()[0][0]
-                    # predict the first two tags:
-                    word_tag_1 = word_tag_list[1].split('_')
-                    word_tag_0 = word_tag_list[0].split('_')
-                    if most_common_tags[2] in range(1, 5):
-                        most_common_tags[1] = int(self.word_tag_dict[word_tag_1[0]][0])
-                        most_common_tags[0] = int(self.word_tag_dict[word_tag_0[0]][0])
-                    elif most_common_tags[2] in range(5, 9):
-                        most_common_tags[1] = int(self.word_tag_dict[word_tag_1[0]][1])
-                        most_common_tags[0] = int(self.word_tag_dict[word_tag_0[0]][1])
+                    if self.use_majority_vote:
+                        most_common_tags = range(n)
+                        for word_index in range(2, n):
+                            compare_list = []
+                            for predict_dictionary in range(0, self.number_of_dicts):
+                                compare_list.append(majority_vote_dict[(sequence_index, predict_dictionary)]
+                                                    [word_index - predict_dictionary])
+                                # list_index - predict_dict: to get to the right place in the relevant dictionary
+                                # (because the word get different index in each dictionary)
+                            count = Counter(compare_list)
+                            most_common_tags[word_index] = count.most_common()[0][0]
+                        # predict the first two tags:
+                        word_tag_1 = word_tag_list[1].split('_')
+                        word_tag_0 = word_tag_list[0].split('_')
+                        if most_common_tags[2] in range(1, 5):
+                            most_common_tags[1] = int(self.word_tag_dict[word_tag_1[0]][0])
+                            most_common_tags[0] = int(self.word_tag_dict[word_tag_0[0]][0])
+                        elif most_common_tags[2] in range(5, 9):
+                            most_common_tags[1] = int(self.word_tag_dict[word_tag_1[0]][1])
+                            most_common_tags[0] = int(self.word_tag_dict[word_tag_0[0]][1])
+                        else:
+                            print('Error: prediction is not in (1,8)')
                     else:
-                        print('Error: prediction is not in (1,8)')
+                        most_common_tags = majority_vote_dict[(sequence_index, 0)].values()
 
                     seq_word_tag_predict = []
                     seq_word_tag_predict_majority = {}
@@ -95,14 +98,8 @@ class viterbi(object):
                         word = word_tag_list[idx_tag].split('_')[0]
                         prediction = str(word + '_' + str(tag))
                         seq_word_tag_predict.append(prediction)
-                        # if idx_tag == 0:
-                        #     seq_word_tag_predict_majority[self.number_of_dicts] = [prediction]
-                        #     seq_word_tag_predict_majority[self.number_of_dicts] = [word_tag_list[idx_tag]]
-                        # else:
-                        #     seq_word_tag_predict_majority[self.number_of_dicts].append(prediction)
-                        #     seq_word_tag_predict_majority[self.number_of_dicts].append(word_tag_list[idx_tag])
-                        for predict_dictionary in range(0, self.number_of_dicts):
-                            if self.number_of_dicts > 0:  # using majority vote
+                        if self.use_majority_vote:  # using majority vote
+                            for predict_dictionary in range(0, self.number_of_dicts):
                                 if predict_dictionary == (self.number_of_dicts-2) and idx_tag < predict_dictionary \
                                         or predict_dictionary == (self.number_of_dicts-1) and idx_tag < predict_dictionary:
                                     if idx_tag == 0:  # create the list
@@ -127,8 +124,8 @@ class viterbi(object):
                     seq_word_tag_predict_majority[(sequence_index, self.number_of_dicts + 1)] = word_tag_list
 
                     self.write_majority_doc(chrome, seq_word_tag_predict_majority, sequence_index)
-                    # print '{}: prediction for sequence index {} is: {}'.format((time.asctime(time.localtime(time.time()))),
-                    #                                                            sequence_index, seq_word_tag_predict)
+                    print '{}: prediction for sequence index {}'.format((time.asctime(time.localtime(time.time()))),
+                                                                        sequence_index)
                 elif self.phase_number == 2:
                     viterbi_results = self.viterbi_sequence(word_tag_list, sequence_index)
                     seq_word_tag_predict = []

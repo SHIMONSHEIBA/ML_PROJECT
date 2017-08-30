@@ -76,13 +76,13 @@ def main():
                                               confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
             word_results_dictionary, seq_results_dictionary = evaluate_obj.run()
 
-        print(word_results_dictionary)
-        print(seq_results_dictionary)
-        logging.info('Following Evaluation results for features {}'.format(features_combination))
-        logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
-                     format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
-                            seq_results_dictionary))
-        logging.info('-----------------------------------------------------------------------------------')
+            print(word_results_dictionary)
+            print(seq_results_dictionary)
+            logging.info('Following Evaluation results for features {}'.format(features_combination))
+            logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
+                         format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
+                                seq_results_dictionary))
+            logging.info('-----------------------------------------------------------------------------------')
 
 if __name__ == "__main__":
     main()

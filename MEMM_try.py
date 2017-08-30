@@ -241,7 +241,7 @@ class MEMM:
                         second_tag = current_tag
                     sequence_index += 1
 
-            print('finished building features in : {}'.format(time.time()-start_time))
+        print('finished building features in : {}'.format(time.time()-start_time))
         return
 
     def build_features_vector(self):

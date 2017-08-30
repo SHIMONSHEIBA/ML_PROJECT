@@ -39,7 +39,9 @@ def main():
     # Train HMM on training data
     hmm = HMM(chrome_train_list, lambda1, lambda2, lambda3, is_smooth=False)
     # Train MEMM on training data
-    memm = MEMM(chrome_train_list)
+    features_combination_list = ['feature_word_tag', 'feature_word', 'feature_tag', 'feature_1', 'feature_2',
+                                 'feature_3', 'feature_4', 'feature_5', 'feature_6', 'feature_7', 'feature_8']
+    memm = MEMM(chrome_train_list, features_combination_list)
     gradient_class = Gradient(memm=memm, lamda=1)
     gradient_result = gradient_class.gradient_descent()
     weights = gradient_result.x
@@ -47,28 +49,28 @@ def main():
     # need to return a dictionary that each seq in chrome_test_list have the first base prediction
     # in the format: {seq_index:base_tag}
     # svm_results - SVM(chrome_train_list, chrome_test_list)
-    NonStructureFeatures_perBase_obj = NonStructureFeatures_perBase(chrome_train_list)
-    classifier_obj = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
+    NonStructureFeatures_perBase_train_obj =\
+        NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list)
     NonStructureModels = {}
     for clf, name in (
             (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
             (Perceptron(n_iter=50), "Perceptron"),
             (MultinomialNB(alpha=.01), 'MultinomialNB')):
-        NonStructureModels[name] = clf.fit(classifier_obj.X_train, classifier_obj.Y_train)
-
+        NonStructureModels[name] = clf.fit(NonStructureFeatures_perBase_train_obj.X_train,
+                                           NonStructureFeatures_perBase_train_obj.Y_train)
 
     use_stop_prob = False
     logging.info('{}: use stop probability is: {}'.format(time.asctime(time.localtime(time.time())), use_stop_prob))
 
     for chrome in chrome_test_list:
         test_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
-        print '{}: Start viterbi HMM for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
+        print '{}: Start viterbi HMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))), chrome)
         viterbi_obj = viterbi(hmm, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         hmm_viterbi_result = viterbi_obj.viterbi_all_data(chrome)
-        print '{}: Start viterbi MEMM for chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
+        print '{}: Start viterbi MEMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))), chrome)
         viterbi_obj = viterbi(memm, 'memm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False, w=weights)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
@@ -80,10 +82,13 @@ def main():
         # in the format: {seq_index:base_tag}
         chrome_len = len(memm_viterbi_result.keys())
         NonStructurePredictions = {k: [] for k in range(chrome_len)}
+        NonStructureFeatures_perBase_test_obj = \
+            NonStructureFeatures_perBase(is_train=False, chrome_test_list=chrome,
+                                         train_object=NonStructureFeatures_perBase_train_obj)
         for name, model in NonStructureModels.items():
-            prediction = model.predict(classifier_obj.X_test)
-            for sequence_inner_index in range(0, classifier_obj.X_test.shape[0]):
-                NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index])
+            prediction = model.predict(NonStructureFeatures_perBase_test_obj.X_test)
+            for sequence_inner_index in range(0, NonStructureFeatures_perBase_test_obj.X_test.shape[0]):
+                NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index][0])
 
         most_common_tags_first_base = {}
         for sequence_index in range(chrome_len):
@@ -102,7 +107,7 @@ def main():
             count = Counter(compare_list)
 
             most_common_tags_first_base[sequence_index] = count.most_common()[0][0]
-        print '{}: Start viterbi HMM for chrome: {} in phase 2'.format((time.asctime(time.localtime(time.time()))),
+        print '{}: Start viterbi HMM for chrome: {} phase 2'.format((time.asctime(time.localtime(time.time()))),
                                                                        chrome)
         viterbi_obj_phase2 = viterbi(hmm, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                                      phase_number=2, use_majority_vote=False,
@@ -131,10 +136,12 @@ def main():
                             seq_results_dictionary))
 
 if __name__ == "__main__":
-    all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
-    for test_chrome in range(1, 18):
-        chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
-        print chrome_train_list
-        chrome_test_list = [str(test_chrome)]
-        print chrome_test_list
-        main()
+    # all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+    # for test_chrome in range(1, 18):
+    #     chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
+    #     print chrome_train_list
+    #     chrome_test_list = [str(test_chrome)]
+    #     print chrome_test_list
+    chrome_train_list = ['17']
+    chrome_test_list = ['17']
+    main()
