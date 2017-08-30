@@ -15,13 +15,20 @@ LOG_FILENAME = datetime.now().strftime\
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
 def main():
-    chrome_train_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-    chrome_test_list = ['13', '14', '15', '16', '17']
+    chrome_train_list = ['1', '2', '3', '4','14', '6', '7', '8', '9', '10', '11', '12','17','15']
+    chrome_test_list = ['13','5', '16',]
     features_combination_list_sub = ['feature_word_tag','feature_word','feature_tag','feature_1','feature_2',
                                  'feature_3','feature_4','feature_5','feature_6','feature_7',
                                  'feature_8']
 
-    features_combination_list = []
+    features_combination_list = [['feature_word_tag','feature_word','feature_1','feature_2','feature_4'],['feature_word_tag',
+                                'feature_word','feature_tag','feature_1','feature_2',
+                                 'feature_3','feature_5','feature_6','feature_7',
+                                 'feature_8'],['feature_word_tag',
+                                'feature_word','feature_tag','feature_1','feature_5','feature_6','feature_7',
+                                 'feature_8'],['feature_1','feature_5','feature_6','feature_7',
+                                 'feature_8'],['feature_5','feature_6','feature_7',
+                                 'feature_8']]
     #for perm in itertools.combinations(features_combination_list_sub, 5):
     #    features_combination_list.append(list(perm))
     #for perm in itertools.combinations(features_combination_list_sub, 6):
@@ -34,12 +41,12 @@ def main():
     #     features_combination_list.append(list(perm))
     # for perm in itertools.combinations(features_combination_list_sub, 10):
     #     features_combination_list.append(list(perm))
-    for perm in itertools.combinations(features_combination_list_sub, 2):
-        features_combination_list.append(list(perm))
-    for perm in itertools.combinations(features_combination_list_sub, 3):
-        features_combination_list.append(list(perm))
-    for perm in itertools.combinations(features_combination_list_sub, 4):
-        features_combination_list.append(list(perm))
+    #for perm in itertools.combinations(features_combination_list_sub, 2):
+    #    features_combination_list.append(list(perm))
+    #for perm in itertools.combinations(features_combination_list_sub, 3):
+    #    features_combination_list.append(list(perm))
+    #for perm in itertools.combinations(features_combination_list_sub, 4):
+    #    features_combination_list.append(list(perm))
 
     logging.info('{}: Train list is: {}, test list is: {}'
                  .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))

@@ -609,7 +609,7 @@ class MEMM:
 
                     sequence_index += 1
 
-            print('finished building history_tag_feature_vector_denominator in : {}'.format(time.time() - start_time))
+        print('finished building history_tag_feature_vector_denominator in : {}'.format(time.time() - start_time))
             # save history_tag_feature_vector_train to csv
             #print('writing history_tag_feature_vector_denominator to csv')
             #with open('history_tag_feature_vector_denominator.csv', 'w') as csv_file:
