@@ -1,10 +1,10 @@
 
 import itertools
-features_combination_list_sub = ['feature_word_tag', 'feature_word', 'feature_tag', 'feature_1', 'feature_2',
-                             'feature_3', 'feature_4', 'feature_5', 'feature_6', 'feature_7',
-                             'feature_8']
-
-print(''.join(features_combination_list_sub))
+#features_combination_list_sub = ['feature_word_tag', 'feature_word', 'feature_tag', 'feature_1', 'feature_2',
+#                             'feature_3', 'feature_4', 'feature_5', 'feature_6', 'feature_7',
+#                             'feature_8']
+#
+#print(''.join(features_combination_list_sub))
 
 #features_combination_list = []
 #for perm in itertools.combinations(features_combination_list_sub, 5):
@@ -34,4 +34,7 @@ print(''.join(features_combination_list_sub))
 
 #results = list(powerset([1, 2, 3]))
 #print(results)
+features_combination_list = [['feature_word_tag', 'feature_word', 'feature_1', 'feature_2', 'feature_4']]
+for features_combination in features_combination_list:
+    print(features_combination)
 
