@@ -5,14 +5,19 @@ import itertools
 from collections import Counter
 import csv
 from datetime import datetime
+from Print_and_save_results import print_save_results
+import logging
 
+
+directory = 'C:\\gitprojects\\\ML_PROJECT\\'
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM model"""
     def __init__(self, model, model_type, data_file, is_log, use_stop_prob, phase_number=1, use_majority_vote=False,
-                 w=0, prediction_for_phase2=None):
+                 w=0, prediction_for_phase2=None, use_majority2=False):
         # model will be HMM or MEMM object, model_type in ['hmm','memm']
         self.model_type = model_type
+        self.model = model
         self.phase_number = phase_number
         self.prediction_for_phase2 = prediction_for_phase2  # dictionary with prediction for the first base in each seq
         if model_type == 'hmm':
@@ -27,6 +32,7 @@ class viterbi(object):
         self.word_tag_dict = model.word_tag_dict
         self.use_stop_prob = use_stop_prob
         self.use_majority_vote = use_majority_vote
+        self.use_majority2 = use_majority2
         if self.use_majority_vote:
             self.number_of_dicts = 3  # number of predictions of first base and "move" seq left
         else:
@@ -124,11 +130,12 @@ class viterbi(object):
                     seq_word_tag_predict_majority[(sequence_index, self.number_of_dicts + 1)] = word_tag_list
 
                     self.write_majority_doc(chrome, seq_word_tag_predict_majority, sequence_index)
-                    print '{}: prediction for sequence index {}'.format((time.asctime(time.localtime(time.time()))),
-                                                                        sequence_index)
+                    print('{}: prediction for sequence index {}'.format((time.asctime(time.localtime(time.time()))),
+                                                                        sequence_index))
                 elif self.phase_number == 2:
                     viterbi_results = self.viterbi_sequence(word_tag_list, sequence_index)
                     seq_word_tag_predict = []
+                    seq_word_tag_predict_majority = {}
                     for idx_tag, tag in viterbi_results.items():
                         if tag == 0 or tag == '0' or tag == -1 or tag == '-1':
                             print('Error: tag is: {}'.format(tag))
@@ -139,19 +146,46 @@ class viterbi(object):
                     # save predict and real sequence to csv
                     seq_word_tag_predict_majority[(sequence_index, 0)] = seq_word_tag_predict
                     seq_word_tag_predict_majority[(sequence_index, 1)] = word_tag_list
-                    self.write_majority_doc(chrome, predict_dict, sequence_index)
+                    self.write_majority_doc(chrome, seq_word_tag_predict_majority, sequence_index)
 
                 sequence_index += 1
             # print '{}: prediction for all sequences{}'.format((time.asctime(time.localtime(time.time()))),
             #                                                   predict_dict)
-        if self.phase_number == 2:
+        # second solution with majority: predict on the first and than continue --> return only first base predict
+        if self.phase_number == 1 and self.use_majority2:
             # return dictionary: {sequence_index:prediction for the first base}
+            if self.model_type == 'memm':
+                write_file_name = datetime.now().strftime \
+                    (directory + 'file_results\\chr' + chrome + '_resultMEMM_%d_%m_%Y_%H_%M.csv')
+                confusion_file_name = datetime.now().strftime \
+                    (directory + ' confusion_files\\chr' + chrome + '_CMMEMM_%d_%m_%Y_%H_%M.xls')
+                seq_confusion_file_name = datetime.now().strftime \
+                    (directory + ' confusion_files\\chr' + chrome + '_sqeCMMEMM_%d_%m_%Y_%H_%M.xls')
+                # seq_labels_file_name = 'C:/gitprojects/ML project/samples_small_data/chr1_sample_label.xlsx'
+                seq_labels_file_name = directory + ' sample_labels150\\chr' + chrome + '_sample_label.xlsx'
+                evaluate_class = print_save_results(self.model, 'memm', self.predict_file, predict_dict, write_file_name,
+                                                    confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
+                word_results_dictionary, seq_results_dictionary = evaluate_class.run()
+
+                logging.info('{}: Related results files are: \n {} \n {} \n {}'.
+                             format(time.asctime(time.localtime(time.time())), write_file_name, confusion_file_name,
+                                    seq_confusion_file_name))
+
+                print(word_results_dictionary)
+                print(seq_results_dictionary)
+                logging.info('Following Evaluation results for features {}'.format(self.model.features_combination))
+                logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
+                             format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
+                                    seq_results_dictionary))
+                logging.info('-----------------------------------------------------------------------------------')
+
             predict_dict_phase_one = {}
             for sequence_index, seq_word_tag_predict in predict_dict.items():
                 predict_dict_phase_one[sequence_index] = seq_word_tag_predict[0]
             return predict_dict_phase_one
 
-        elif self.phase_number == 1:
+        # first phase but without majority approach 2, or second phase of majority approach 2: return the full results
+        elif (self.phase_number == 1 and not self.use_majority2) or self.phase_number == 2:
             return predict_dict
 
     def viterbi_sequence(self, word_tag_list, sequence_index):
@@ -287,7 +321,7 @@ class viterbi(object):
                         (x_k_m_1 == 'T' and seq_word_tag_predict[k - 1] not in ['4', 4, '8', 8]):
                     reut = 1
             if self.phase_number == 2:
-                if first_base_predict != seq_word_tag_predict[0]:
+                if int(first_base_predict) != seq_word_tag_predict[0]:
                     print('Error: first base predict is not the final prediction')
             return seq_word_tag_predict
 
@@ -327,10 +361,9 @@ class viterbi(object):
 
         return tag_exp_dict[v] / float(sum_denominator)
 
-
     def write_majority_doc(self, chrome, dict_seq_results, sequence_index):
-        write_file_name = 'C:\\gitprojects\\ML_PROJECT\\majority_vote\\chr' + chrome + '_majority_vote_results_phase'\
-                          + str(self.phase_number) + '.csv'
+        write_file_name = directory + ' majority_vote\\chr' + chrome + '_majority_vote_results_phase'\
+                          + str(self.phase_number) + self.model_type + '.csv'
         with open(write_file_name, 'a') as csv_file:
             writer = csv.writer(csv_file)
             if sequence_index == 0:

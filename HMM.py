@@ -59,7 +59,7 @@ class HMM(object):
         # Calculate matrix:
         if is_smooth:
             self.create_transition_matrix()
-            print self.transition_mat_array
+            # print self.transition_mat_array
             print np.sum(self.transition_mat_array, axis=2)
             logging.info('{}: using smoothing: {}'.format(time.asctime(time.localtime(time.time())), is_smooth))
             logging.info('{}: sum of rows in transition matrix is: \n {}'.
@@ -67,7 +67,7 @@ class HMM(object):
                                 np.sum(self.transition_mat_array, axis=2)))
         else:
             self.create_transition_matrix_no_smooth()
-            print self.transition_mat_array
+            # print self.transition_mat_array
             print np.sum(self.transition_mat_array, axis=2)
             logging.info('{}: using smoothing: {}'.format(time.asctime(time.localtime(time.time())), is_smooth))
             logging.info('{}: sum of rows in transition matrix is: \n {}'.
@@ -122,7 +122,7 @@ class HMM(object):
                             three_tags_end_with_two_tags = previous_tag + '_' + current_tag + '_#'
                             self.three_tags_dict[three_tags_end_with_two_tags] += 1
                         elif word_in_seq_index == len(word_tag_list)-1 and '\n' not in word_tag_tuple[1]:
-                            print('Error: n not in last tuple')
+                            # print('Error: n not in last tuple')
                             current_tag = word_tag_tuple[1]
                             word_tag = word_tag_tuple[0] + '_' + word_tag_tuple[1]
                             two_tags_end = current_tag + '_#'

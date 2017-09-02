@@ -29,12 +29,6 @@ import matplotlib.pyplot as plt
 import scipy
 
 
-# Display progress logs on stdout
-LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\non_structure\\LogFileNonStructure_%d_%m_%Y_%H_%M.log')
-logging.basicConfig(filename=LOG_FILENAME,
-                    level=logging.INFO,)
-
-
 # parse commandline arguments
 op = OptionParser()
 op.add_option("--report",
@@ -58,6 +52,9 @@ if len(args) > 0:
 print(__doc__)
 op.print_help()
 print()
+
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
+
 
 ###############################################################################
 class Classifier:
@@ -89,7 +86,7 @@ class Classifier:
         if self.use_CV:  # run cross validation
             predicted = cross_val_predict(clf, self.X_train, self.Y_train, cv=opts.k_fold)
             score = metrics.accuracy_score(self.Y_train, predicted)
-        else:  # fir on train and predict test data
+        else:  # fit on train and predict test data
             model = clf.fit(self.X_train, self.Y_train)
             predicted = model.predict(self.X_test)
             score = metrics.accuracy_score(self.Y_test, predicted)
@@ -144,6 +141,10 @@ class Classifier:
         print("Elastic-Net penalty")
         results.append(self.benchmark(SGDClassifier(alpha=.0001, n_iter=50, penalty="elasticnet")))
 
+        print('=' * 80)
+        print("LinearSVC with hingh loss")
+        results.append(self.benchmark(LinearSVC(loss='hinge'), 'LinearSVCHinge'))
+
         # Train NearestCentroid without threshold
         print('=' * 80)
         print("NearestCentroid (aka Rocchio classifier)")
@@ -170,7 +171,7 @@ class Classifier:
         indices = np.arange(len(results))
 
         results = [[x[i] for x in results] for i in range(4)]
-        file_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\non_structure\\results_%d_%m_%Y_%H_%M.csv')
+        file_name = datetime.now().strftime(directory + 'non_structure\\results_%d_%m_%Y_%H_%M.csv')
         with open(file_name, "wb") as ResultsFile:
             writer = csv.writer(ResultsFile)
             writer.writerows(results)
@@ -194,13 +195,17 @@ class Classifier:
         for i, c in zip(indices, clf_names):
             plt.text(-.3, i, c)
 
-        plt.show()
-        plot_name = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\non_structure\\plot_%d_%m_%Y_%H_%M.png')
+        # plt.show()
+        plot_name = datetime.now().strftime(directory + 'non_structure\\plot_%d_%m_%Y_%H_%M.png')
         plt.savefig(plot_name, bbox_inches='tight')
         return
 
 
 if __name__ == '__main__':
+    # Display progress logs on stdout
+    LOG_FILENAME = datetime.now().strftime(
+        directory + 'non_structure\\LogFileNonStructure_%d_%m_%Y_%H_%M.log')
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
     all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
     for test_chrome in range(1, 18):
         chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]

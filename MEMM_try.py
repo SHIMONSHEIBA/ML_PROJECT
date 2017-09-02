@@ -4,6 +4,8 @@ import numpy as np
 from scipy.sparse import csr_matrix
 import csv
 
+directory = 'C:\\gitprojects\\\ML_PROJECT\\'
+
 
 class MEMM:
     """ Base class of modeling MEMM logic on the data"""
@@ -81,10 +83,10 @@ class MEMM:
         # each feature for statistics and feature importance
 
         start_time = time.time()
-        print('starting building features from train')
+        print('{}: starting building features from train'.format(time.asctime(time.localtime(time.time()))))
 
         for chrome in self.chrome_list:
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
 
             with open(training_file, 'r') as training:
 
@@ -241,13 +243,14 @@ class MEMM:
                         second_tag = current_tag
                     sequence_index += 1
 
-        print('finished building features in : {}'.format(time.time()-start_time))
+        print('{}: finished building features in : {}'.format(time.asctime(time.localtime(time.time())),
+                                                              time.time()-start_time))
         return
 
     def build_features_vector(self):
 
         start_time = time.time()
-        print('starting building feature vector')
+        print('{}: starting building feature vector'.format(time.asctime(time.localtime(time.time()))))
 
         features_vector_idx = 0
         feature_instances = 0
@@ -364,14 +367,15 @@ class MEMM:
             print('size of feature start codon after is: {}'.format(feature_instances))
             feature_instances = 0
 
-        print('finished building features vector in : {}'.format(time.time() - start_time))
+        print('{}: finished building features vector in : {}'.format(time.asctime(time.localtime(time.time())),
+              time.time() - start_time))
 
         return
 
     def create_history_tag_feature_vector(self):
 
         start_time = time.time()
-        print('starting building history_tag_feature_vector')
+        print('{}: starting building history_tag_feature_vector'.format(time.asctime(time.localtime(time.time()))))
 
         # create all possible keys for feature_vector
         permutations_list = product('ACGT', repeat=7)
@@ -429,7 +433,8 @@ class MEMM:
                                                                 plus_one_word, plus_two_word, plus_three_word,
                                                                 current_word), current_tag] = indexes_vector
 
-        print('finished building history_tag_feature_vector in : {}'.format(time.time() - start_time))
+        print('{}: finished building history_tag_feature_vector in : {}'
+              .format(time.asctime(time.localtime(time.time())), time.time() - start_time))
 
         # save history_tag_feature_vector to csv
         #print('writing history_tag_feature_vector to csv')
@@ -443,10 +448,11 @@ class MEMM:
     def create_history_tag_feature_vector_train(self):
 
         start_time = time.time()
-        print('starting building history_tag_feature_vector_train')
+        print('{}: starting building history_tag_feature_vector_train'.
+              format(time.asctime(time.localtime(time.time()))))
 
         for chrome in self.chrome_list:
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
 
             with open(training_file, 'r') as training:
 
@@ -533,10 +539,11 @@ class MEMM:
     def create_history_tag_feature_vector_denominator(self):
 
         start_time = time.time()
-        print('starting building history_tag_feature_vector_denominator')
+        print('{}: starting building history_tag_feature_vector_denominator'
+              .format(time.asctime(time.localtime(time.time()))))
 
         for chrome in self.chrome_list:
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
 
             with open(training_file, 'r') as training:
 
@@ -609,7 +616,8 @@ class MEMM:
 
                     sequence_index += 1
 
-        print('finished building history_tag_feature_vector_denominator in : {}'.format(time.time() - start_time))
+        print('{}: finished building history_tag_feature_vector_denominator in : {}'
+              .format(time.asctime(time.localtime(time.time())), time.time() - start_time))
             # save history_tag_feature_vector_train to csv
             #print('writing history_tag_feature_vector_denominator to csv')
             #with open('history_tag_feature_vector_denominator.csv', 'w') as csv_file:

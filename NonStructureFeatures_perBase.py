@@ -1,17 +1,12 @@
 from MEMM_try import MEMM
 import time
-from Print_and_save_results import print_save_results
 import logging
 from datetime import datetime
 from Check_non_structure_classifiers import Classifier
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import RidgeClassifier
-from sklearn.linear_model import Perceptron
-from sklearn.naive_bayes import BernoulliNB, MultinomialNB, GaussianNB
 
-LOG_FILENAME = datetime.now().strftime('C:\\gitprojects\\ML_PROJECT\\logs\\LogFileNonStructure_%d_%m_%Y_%H_%M.log')
-logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 class NonStructureFeatures_perBase:
@@ -59,7 +54,7 @@ class NonStructureFeatures_perBase:
         all_samples_features = {}
         all_samples_index = 0  # number of samples (bases) in the train/test data --> index of all_samples_features
         for chrome in chrome_list:
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
             # seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\first_base_label\\chr' + chrome + '_first_label.xlsx'
             # seq_label = pd.read_excel(seq_labels_file_name, header=None)
             # seq_label_array = seq_label.as_matrix()
@@ -154,56 +149,18 @@ class NonStructureFeatures_perBase:
 
 
 def main():
-    NonStructureFeatures_perBase_train_obj =\
-        NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list)
-    # NonStructureModels = {}
-    # for clf, name in (
-    #         (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
-    #         (Perceptron(n_iter=50), "Perceptron"),
-    #         (MultinomialNB(alpha=.01), 'MultinomialNB')):
-    #     NonStructureModels[name] = clf.fit(NonStructureFeatures_perBase_train_obj.X_train,
-    #                                        NonStructureFeatures_perBase_train_obj.Y_train)
-    # NonStructurePredictions = {k: [] for k in range(428)}
-    # chrome = '17'
-    # NonStructureFeatures_perBase_test_obj = \
-    #     NonStructureFeatures_perBase(is_train=False, chrome_test_list=[chrome],
-    #                                  train_object=NonStructureFeatures_perBase_train_obj)
-    # for name, model in NonStructureModels.items():
-    #     prediction = model.predict(NonStructureFeatures_perBase_test_obj.X_test)
-    #     for sequence_inner_index in range(0, NonStructureFeatures_perBase_test_obj.X_test.shape[0]):
-    #         NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index][0])
-    # NonStructureFeatures_perBase_obj = \
-    #     NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list,
-    #                                  chrome_test_list=chrome_test_list)
-    # classifier = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
-    # classifier.ModelsIteration()
-
-    # print('start evaluation')
-    # write_file_name = datetime.now().strftime\
-    #     ('C:\\gitprojects\\\ML_PROJECT\\file_results\\chr' + chrome + '_resultMEMM_%d_%m_%Y_%H_%M.csv')
-    # confusion_file_name = datetime.now().strftime\
-    #     ('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome + '_CMMEMM_%d_%m_%Y_%H_%M.xls')
-    # seq_confusion_file_name = datetime.now().strftime\
-    #     ('C:\\gitprojects\\ML_PROJECT\\confusion_files\\chr' + chrome + '_sqeCMMEMM_%d_%m_%Y_%H_%M.xls')
-    # # seq_labels_file_name = 'C:/gitprojects/ML project/samples_small_data/chr1_sample_label.xlsx'
-    # seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\sample_labels150\\chr' + chrome + '_sample_label.xlsx'
-    # evaluate_obj = print_save_results(memm, 'memm', test_file, viterbi_result, write_file_name,
-    #                                   confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
-    # word_results_dictionary, seq_results_dictionary = evaluate_obj.run()
-    #
-    # print(word_results_dictionary)
-    # print(seq_results_dictionary)
-    # logging.info('Following Evaluation results for features {}'.format(features_combination))
-    # logging.info('{}: Evaluation results for chrome number: {} are: \n {} \n {} \n'.
-    #              format(time.asctime(time.localtime(time.time())), chrome, word_results_dictionary,
-    #                     seq_results_dictionary))
-    # logging.info('-----------------------------------------------------------------------------------')
+    NonStructureFeatures_perBase_obj = NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list,
+                                                                    chrome_test_list=chrome_test_list)
+    classifier = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
+    classifier.ModelsIteration()
 
 if __name__ == "__main__":
-    # all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
-    # for test_chrome in range(1, 18):
-    #     chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
-    #     chrome_test_list = [str(test_chrome)]
-    chrome_train_list = ['17']
-    chrome_test_list = ['17']
-    main()
+    logging.getLogger('').handlers = []
+    LOG_FILENAME = datetime.now().strftime(directory + 'non_structure\\'
+                                           'LogFileNonStructurePerBase_%d_%m_%Y_%H_%M.log')
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
+    all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+    for test_chrome in range(1, 18):
+        chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
+        chrome_test_list = [str(test_chrome)]
+        main()
