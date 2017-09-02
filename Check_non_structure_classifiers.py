@@ -53,24 +53,21 @@ print(__doc__)
 op.print_help()
 print()
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 
 ###############################################################################
 class Classifier:
     def __init__(self, features_obj, use_CV):
-        self.X_train =\
-            features_obj.all_train_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
-        self.Y_train = features_obj.all_train_samples_features['IsGen']
+        self.X_train = features_obj.X_train
+        self.Y_train = features_obj.Y_train
         self.use_CV = use_CV
         if self.use_CV:
-            self.X_test = \
-                features_obj.all_test_samples_features.ix[:, features_obj.all_train_samples_features.columns != 'IsGen']
-            self.Y_test = features_obj.all_train_samples_features['IsGen']
+            self.X_test = features_obj.X_train
+            self.Y_test = features_obj.Y_train
         else:
-            self.X_test =\
-                features_obj.all_test_samples_features.ix[:, features_obj.all_test_samples_features.columns != 'IsGen']
-            self.Y_test = features_obj.all_test_samples_features['IsGen']
+            self.X_test = features_obj.X_test
+            self.Y_test = features_obj.Y_test
         print('data loaded')
 
 ###############################################################################
@@ -97,7 +94,7 @@ class Classifier:
 
         if opts.print_cm:
             print("confusion matrix:")
-            print(metrics.confusion_matrix(self.Y_test, predicted, labels=[-1, 1]))
+            print(metrics.confusion_matrix(self.Y_test, predicted, labels=['-1', '1']))
             logging.info("confusion matrix:")
             logging.info(metrics.confusion_matrix(self.Y_test, predicted, labels=[-1, 1]))
 

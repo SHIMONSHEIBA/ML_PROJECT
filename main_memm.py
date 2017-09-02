@@ -10,7 +10,7 @@ import itertools
 import sys
 
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 LOG_FILENAME = datetime.now().strftime(directory + 'logs\\LogFileMEMM_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     all_chromes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
     for test_chrome in range(3, 18):
         chrome_train_list = [x for x in all_chromes if x != str(test_chrome)]
-        print chrome_train_list
+        print(chrome_train_list)
         chrome_test_list = [str(test_chrome)]
-        print chrome_test_list
+        print(chrome_test_list)
         main()

@@ -25,7 +25,7 @@ from sklearn.model_selection import cross_val_predict, LeaveOneOut
 from sklearn.svm import SVC
 
 
-directory = 'C:\\gitprojects\\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 logging.getLogger('').handlers = []
 LOG_FILENAME = datetime.now().strftime(directory + 'logs\\LogFileMajority2_%d_%m_%Y_%H_%M.log')
@@ -70,8 +70,7 @@ def main():
     # need to return a dictionary that each seq in chrome_test_list have the first base prediction
     # in the format: {seq_index:base_tag}
     # svm_results - SVM(chrome_train_list, chrome_test_list)
-    NonStructureFeatures_perBase_train_obj =\
-        NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list)
+    NonStructureFeatures_perBase_train_obj = NonStructureFeatures_perBase(majority=True)
     NonStructureModels = {}
     for clf, name in (
             (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
@@ -79,28 +78,27 @@ def main():
             (MultinomialNB(alpha=.01), 'MultinomialNB')):
         NonStructureModels[name] = clf.fit(NonStructureFeatures_perBase_train_obj.X_train,
                                            NonStructureFeatures_perBase_train_obj.Y_train)
-    number_of_non_structure = len(NonStructureModels.keys())
 
     use_stop_prob = False
     logging.info('{}: use stop probability is: {}'.format(time.asctime(time.localtime(time.time())), use_stop_prob))
 
     for chrome in chrome_test_list:
         test_file = directory + 'labels150\\chr' + chrome + '_label.csv'
-        print '{}: Start viterbi HMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))), chrome)
+        print('{}: Start viterbi HMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))), chrome))
         viterbi_class_hmm = viterbi(hmm_class, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False, use_majority2=True)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         hmm_viterbi_result = viterbi_class_hmm.viterbi_all_data(chrome)
-        print '{}: Start viterbi MEMM for chrome: {} phase 1'.\
-            format((time.asctime(time.localtime(time.time()))), chrome)
+        print('{}: Start viterbi MEMM for chrome: {} phase 1'.\
+            format((time.asctime(time.localtime(time.time()))), chrome))
         viterbi_class_memm = viterbi(memm_class, 'memm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False, w=weights, use_majority2=True)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         memm_viterbi_result = viterbi_class_memm.viterbi_all_data(chrome)
-        print '{}: Start train non-structure classifier for chrome: {}'.\
-            format((time.asctime(time.localtime(time.time()))), chrome)
+        print('{}: Start train non-structure classifier for chrome: {}'.\
+            format((time.asctime(time.localtime(time.time()))), chrome))
         # Train non-structure classifier
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
@@ -131,13 +129,11 @@ def main():
 
             most_common_tags_first_base[sequence_index] = count.most_common()[0][0]
             write_majority_doc(chrome, compare_list, sequence_index)
-        print '{}: Start viterbi HMM for chrome: {} phase 2'.format((time.asctime(time.localtime(time.time()))),
-                                                                       chrome)
+        print('{}: Start viterbi HMM for chrome: {} phase 2'.format((time.asctime(time.localtime(time.time()))), chrome))
         viterbi_class_phase2_hmm = viterbi(hmm_class, 'hmm', data_file=test_file, is_log=False,
                                            use_stop_prob=use_stop_prob, phase_number=2, use_majority_vote=False,
                                            prediction_for_phase2=most_common_tags_first_base)
         phase2_viterbi_result_hmm = viterbi_class_phase2_hmm.viterbi_all_data(chrome)
-
 
         write_file_name = datetime.now().strftime(directory + 'file_results\\chr' + chrome +
                                                   '_resultMajority2HMM_%d_%m_%Y_%H_%M.csv')
@@ -161,8 +157,8 @@ def main():
 
         logging.info('-----------------------------------------------------------------------------------')
 
-        print '{}: Start viterbi MEMM for chrome: {} phase 2'.format((time.asctime(time.localtime(time.time()))),
-                                                                    chrome)
+        print('{}: Start viterbi MEMM for chrome: {} phase 2'.format((time.asctime(time.localtime(time.time()))),
+                                                                    chrome))
         viterbi_class_phase2_memm = viterbi(memm_class, 'memm', data_file=test_file, is_log=False,
                                             use_stop_prob=use_stop_prob, phase_number=2, use_majority_vote=False,
                                             w=weights, prediction_for_phase2=most_common_tags_first_base)

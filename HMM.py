@@ -5,6 +5,8 @@ import csv
 import numpy as np
 import logging
 
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+
 
 class HMM(object):
     ''' Simple Hidden Markov Model implementation.  User provides
@@ -60,7 +62,7 @@ class HMM(object):
         if is_smooth:
             self.create_transition_matrix()
             # print self.transition_mat_array
-            print np.sum(self.transition_mat_array, axis=2)
+            print(np.sum(self.transition_mat_array, axis=2))
             logging.info('{}: using smoothing: {}'.format(time.asctime(time.localtime(time.time())), is_smooth))
             logging.info('{}: sum of rows in transition matrix is: \n {}'.
                          format(time.asctime(time.localtime(time.time())),
@@ -68,13 +70,13 @@ class HMM(object):
         else:
             self.create_transition_matrix_no_smooth()
             # print self.transition_mat_array
-            print np.sum(self.transition_mat_array, axis=2)
+            print(np.sum(self.transition_mat_array, axis=2))
             logging.info('{}: using smoothing: {}'.format(time.asctime(time.localtime(time.time())), is_smooth))
             logging.info('{}: sum of rows in transition matrix is: \n {}'.
                          format(time.asctime(time.localtime(time.time())),
                                 np.sum(self.transition_mat_array, axis=2)))
         self.create_emission_matrix()
-        print self.emission_mat_array
+        print(self.emission_mat_array)
         with open('transition_mat.csv', 'wb') as csv_file:
             writer = csv.writer(csv_file)
             for key, value in self.transition_mat.items():
@@ -82,10 +84,10 @@ class HMM(object):
 
     def create_dictionaries(self):
         sequence_index = 0
-        print '{}: Start build transition and emission matrices'.format(time.asctime(time.localtime(time.time())))
+        print('{}: Start build transition and emission matrices'.format(time.asctime(time.localtime(time.time()))))
         for chrome in self.chrome_list:
-            print '{}: Start train on chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome)
-            training_file = 'C:\\gitprojects\\ML_PROJECT\\labels150\\chr' + chrome + '_label.csv'
+            print('{}: Start train on chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome))
+            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
             with open(training_file, 'r') as training:
                 for sequence in training:
                     sequence_index += 1
@@ -157,7 +159,7 @@ class HMM(object):
             self.two_tags_dict['#_#'] = sequence_index
             self.one_tags_dict['#'][0] = sequence_index
 
-        print '{}: Finish build transition and emission matrices'.format(time.asctime(time.localtime(time.time())))
+        print('{}: Finish build transition and emission matrices'.format(time.asctime(time.localtime(time.time()))))
 
         return
 
