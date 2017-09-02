@@ -9,7 +9,7 @@ from Print_and_save_results import print_save_results
 import logging
 
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM and MEMM model"""

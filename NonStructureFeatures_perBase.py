@@ -7,13 +7,13 @@ import pandas as pd
 import numpy as np
 import csv
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 
 class NonStructureFeatures_perBase:
     def __init__(self, majority=False):
         # chorme to use as training data
-        self.chrome_list = ['1', '17'] #['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+        self.chrome_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
         self.majority = majority
         # just for initialize
         self.X_train = ''
@@ -44,7 +44,7 @@ class NonStructureFeatures_perBase:
         #     self.X_test = self.all_test_samples_features.ix[:, self.all_test_samples_features.columns != 'IsGen']
         #     self.Y_test = self.all_test_samples_features['IsGen']
         if not self.majority:
-            for test_chrome in range(1, 1):
+            for test_chrome in range(1, 2):
                 chrome_train_list = [x for x in self.chrome_list if x != str(test_chrome)]
                 chrome_test_list = [str(test_chrome)]
                 logging.info('{}: Train list is: {}, test list is: {}'
@@ -86,17 +86,23 @@ class NonStructureFeatures_perBase:
 
                 sequence_index = 1
                 for sequence in training:
+                    print('{}: starting working on sequence: {} in chrome {}'.
+                          format(time.asctime(time.localtime(time.time())), sequence_index, chrome))
 
                     word_tag_list = sequence.split(',')
 
                     while '' in word_tag_list:
                         word_tag_list.remove('')
+                        print('while loop with empty')
                     while ' ' in word_tag_list:
                         word_tag_list.remove(' ')
+                        print('while loop with space')
                     while '\n' in word_tag_list:
                         word_tag_list.remove('\n')
+                        print('while loop with n')
                     while ',' in word_tag_list:
                         word_tag_list.remove(',')
+                        print('while loop with ,')
                     if '\n' in word_tag_list[len(word_tag_list) - 1]:
                         word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
 
@@ -170,19 +176,19 @@ class NonStructureFeatures_perBase:
             headers.append('word_index')
             # data = np.array(all_samples_features.values())
             all_samples_featuresDF = pd.DataFrame(data=all_samples_features, columns=headers)
-            chrome_vector_file_name = directory + 'vectors\\chr' + chrome + '.xlsx'
-            all_samples_featuresDF.to_csv(chrome_vector_file_name, encoding='utf-8')
+            chrome_vector_file_name = directory + 'vectors\\chr' + chrome + '.csv'
+            all_samples_featuresDF.to_csv(chrome_vector_file_name, encoding='utf-8', index=False)
+            all_samples_featuresDF.drop(all_samples_featuresDF.index, inplace=True)
 
             # with open(chrome_vector_file_name, "wb") as f:
             #     writer = csv.writer(f)
             #     writer.writerows(all_samples_features)
-
         for chrome in self.chrome_list:
-            chrome_vector = pd.read_excel(directory + 'vectors\\chr' + chrome + '.xlsx')
+            chrome_vector = pd.read_csv(directory + 'vectors\\chr' + chrome + '.csv')
             if chrome == '1':
                 all_features = chrome_vector
             else:
-                all_features = pd.concat([chrome_vector, all_features], axis=1)
+                all_features = pd.concat([all_features, chrome_vector], ignore_index=True, axis=0)
 
 
 
@@ -193,7 +199,7 @@ class NonStructureFeatures_perBase:
         # headers.append('word_index')
         # # data = np.array(all_samples_features.values())
         # all_samples_featuresDF = pd.DataFrame(data=all_samples_features, columns=headers)
-        return all_features.T
+        return all_features
 
 
 def main():

@@ -9,8 +9,7 @@ from datetime import datetime
 import itertools
 import sys
 
-
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 LOG_FILENAME = datetime.now().strftime(directory + 'logs\\LogFileMEMM_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 

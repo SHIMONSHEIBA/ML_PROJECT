@@ -53,8 +53,7 @@ print(__doc__)
 op.print_help()
 print()
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
-
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 ###############################################################################
 class Classifier:
@@ -94,7 +93,7 @@ class Classifier:
 
         if opts.print_cm:
             print("confusion matrix:")
-            print(metrics.confusion_matrix(self.Y_test, predicted, labels=['-1', '1']))
+            print(metrics.confusion_matrix(self.Y_test, predicted, labels=[-1, 1]))
             logging.info("confusion matrix:")
             logging.info(metrics.confusion_matrix(self.Y_test, predicted, labels=[-1, 1]))
 

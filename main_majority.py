@@ -25,7 +25,7 @@ from sklearn.model_selection import cross_val_predict, LeaveOneOut
 from sklearn.svm import SVC
 
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 logging.getLogger('').handlers = []
 LOG_FILENAME = datetime.now().strftime(directory + 'logs\\LogFileMajority2_%d_%m_%Y_%H_%M.log')
