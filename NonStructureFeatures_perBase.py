@@ -85,17 +85,23 @@ class NonStructureFeatures_perBase:
 
                 sequence_index = 1
                 for sequence in training:
+                    print('{}: starting working on sequence: {} in chrome {}'.
+                          format(time.asctime(time.localtime(time.time())), sequence_index, chrome))
 
                     word_tag_list = sequence.split(',')
 
                     while '' in word_tag_list:
                         word_tag_list.remove('')
+                        print('while loop with empty')
                     while ' ' in word_tag_list:
                         word_tag_list.remove(' ')
+                        print('while loop with space')
                     while '\n' in word_tag_list:
                         word_tag_list.remove('\n')
+                        print('while loop with n')
                     while ',' in word_tag_list:
                         word_tag_list.remove(',')
+                        print('while loop with ,')
                     if '\n' in word_tag_list[len(word_tag_list) - 1]:
                         word_tag_list[len(word_tag_list) - 1] = word_tag_list[len(word_tag_list) - 1].replace('\n', '')
 
