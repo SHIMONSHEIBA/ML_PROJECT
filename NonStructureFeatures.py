@@ -6,7 +6,7 @@ import itertools
 import pandas as pd
 import re
 
-directory = 'C:\\gitprojects\\ML_PROJECT\\'
+directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 
 
 class NonStructureFeatures:
