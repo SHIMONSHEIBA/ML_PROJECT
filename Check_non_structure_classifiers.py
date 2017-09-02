@@ -53,7 +53,7 @@ print(__doc__)
 op.print_help()
 print()
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 ###############################################################################

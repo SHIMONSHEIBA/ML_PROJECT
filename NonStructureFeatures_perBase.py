@@ -5,14 +5,15 @@ from datetime import datetime
 from Check_non_structure_classifiers import Classifier
 import pandas as pd
 import numpy as np
+import csv
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 class NonStructureFeatures_perBase:
     def __init__(self, majority=False):
         # chorme to use as training data
-        self.chrome_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+        self.chrome_list = ['1', '17'] #['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
         self.majority = majority
         # just for initialize
         self.X_train = ''
@@ -43,7 +44,7 @@ class NonStructureFeatures_perBase:
         #     self.X_test = self.all_test_samples_features.ix[:, self.all_test_samples_features.columns != 'IsGen']
         #     self.Y_test = self.all_test_samples_features['IsGen']
         if not self.majority:
-            for test_chrome in range(1, 18):
+            for test_chrome in range(1, 1):
                 chrome_train_list = [x for x in self.chrome_list if x != str(test_chrome)]
                 chrome_test_list = [str(test_chrome)]
                 logging.info('{}: Train list is: {}, test list is: {}'
@@ -70,7 +71,6 @@ class NonStructureFeatures_perBase:
 
         print('{}: starting building feature vector for chrome_list: {}'.
               format(time.asctime(time.localtime(time.time())), self.chrome_list))
-        all_samples_features = []
         all_samples_index = 0  # number of samples (bases) in the train/test data --> index of all_samples_features
         for chrome in self.chrome_list:
             print('{}: starting building feature vector for chrome: {}'.
@@ -82,6 +82,7 @@ class NonStructureFeatures_perBase:
             # seq_label_array = seq_label.as_matrix()
 
             with open(training_file, 'r') as training:
+                all_samples_features = []
 
                 sequence_index = 1
                 for sequence in training:
@@ -163,14 +164,36 @@ class NonStructureFeatures_perBase:
 
                     sequence_index += 1
 
+            headers = [i for i in range(len(indexes_vector) - 3)]
+            headers.append('IsGen')
+            headers.append('chrome')
+            headers.append('word_index')
+            # data = np.array(all_samples_features.values())
+            all_samples_featuresDF = pd.DataFrame(data=all_samples_features, columns=headers)
+            chrome_vector_file_name = directory + 'vectors\\chr' + chrome + '.xlsx'
+            all_samples_featuresDF.to_csv(chrome_vector_file_name, encoding='utf-8')
+
+            # with open(chrome_vector_file_name, "wb") as f:
+            #     writer = csv.writer(f)
+            #     writer.writerows(all_samples_features)
+
+        for chrome in self.chrome_list:
+            chrome_vector = pd.read_excel(directory + 'vectors\\chr' + chrome + '.xlsx')
+            if chrome == '1':
+                all_features = chrome_vector
+            else:
+                all_features = pd.concat([chrome_vector, all_features], axis=1)
+
+
+
                     # for test data and majority: need features just for the first base
-        headers = [i for i in range(len(indexes_vector)-3)]
-        headers.append('IsGen')
-        headers.append('chrome')
-        headers.append('word_index')
-        # data = np.array(all_samples_features.values())
-        all_samples_featuresDF = pd.DataFrame(data=all_samples_features, columns=headers)
-        return all_samples_featuresDF
+        # headers = [i for i in range(len(indexes_vector)-3)]
+        # headers.append('IsGen')
+        # headers.append('chrome')
+        # headers.append('word_index')
+        # # data = np.array(all_samples_features.values())
+        # all_samples_featuresDF = pd.DataFrame(data=all_samples_features, columns=headers)
+        return all_features.T
 
 
 def main():

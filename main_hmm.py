@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import logging
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 LOG_FILENAME = datetime.now().strftime(directory + 'logs\\LogFileHMMNo17_%d_%m_%Y_%H_%M.log')
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 

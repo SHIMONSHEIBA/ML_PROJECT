@@ -4,7 +4,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 import csv
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 class MEMM:
