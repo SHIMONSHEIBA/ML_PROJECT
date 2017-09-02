@@ -13,7 +13,11 @@ directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
 class NonStructureFeatures_perBase:
     def __init__(self, majority=False):
         # chorme to use as training data
-        self.chrome_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']
+        # self.chrome_list = ['1', '2', '2.1', '2.2', '3', '4', '4.1', '4.2', '4.3', '4.4', '5', '5.1', '6',
+        #                     '7', '7.1', '7.2', '8', '8.1', '9', '9.1', '10', '10.1', '11', '11.1', '12', '12.1', '12.2',
+        #                     '12.3', '13', '13.1', '13.2', '14', '14.1', '14.2', '15', '15.1', '15.2', '15.3', '16',
+        #                     '16.1', '16.2', '17']
+        self.chrome_list = ['1', '2', '2.1', '2.2']
         self.majority = majority
         # just for initialize
         self.X_train = ''
@@ -32,6 +36,11 @@ class NonStructureFeatures_perBase:
         # just create the feature vector indexes
         self.NonStructureFeaturesIndexes = MEMM(self.chrome_list, features_list, history_tag_feature_vector=True)
         self.all_samples_features = self.create_feature_vector()
+        # self.all_samples_features['chrome'].replace \
+        #     ([2.1, 2.2, 4.1, 4.2, 4.3, 4.4, 5.1, 7.1, 7.2, 8.1, 9.1, 10.1, 11.1, 12.1, 12.2, 12.3, 13.1, 13.2, 14.1,
+        #       14.2, 15.1, 15.2, 15.3, 16.1, 16.2], [2, 2, 4, 4, 4, 4, 5, 7, 7, 8, 9, 10, 11, 12, 12, 12, 13, 13, 14, 14,
+        #                                             15, 15, 15, 16, 16], inplace=True)
+        self.all_samples_features['chrome'].replace([2.1, 2.2], [2, 2], inplace=True)
         #     self.X_train = self.all_samples_features.ix[:, self.all_samples_features.columns != 'IsGen']
         #     self.Y_train = self.all_samples_features['IsGen']
         # if not is_train and chrome_test_list is not None:
@@ -44,7 +53,7 @@ class NonStructureFeatures_perBase:
         #     self.X_test = self.all_test_samples_features.ix[:, self.all_test_samples_features.columns != 'IsGen']
         #     self.Y_test = self.all_test_samples_features['IsGen']
         if not self.majority:
-            for test_chrome in range(1, 2):
+            for test_chrome in range(1, 2):  #range(1,18)
                 chrome_train_list = [x for x in self.chrome_list if x != str(test_chrome)]
                 chrome_test_list = [str(test_chrome)]
                 logging.info('{}: Train list is: {}, test list is: {}'
