@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import csv
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 class NonStructureFeatures_perBase:
