@@ -3,6 +3,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.optimize import minimize
 
+
 # in this class we implement the tools needed for a known gradient descent of scipy
 # according to the data of MEMM with regularization on the weights
 class Gradient(object):
@@ -19,11 +20,9 @@ class Gradient(object):
         self.index_of_loss = 1
         self.index_gradient = 1
 
-
-
     def gradient(self, v):
 
-        first_part = csr_matrix(np.zeros_like(v)) #np.zeros_like(v)
+        first_part = csr_matrix(np.zeros_like(v))
         second_part = 0
         third_part = np.copy(v)
 
@@ -57,8 +56,6 @@ class Gradient(object):
 
         return (- first_part + second_part + self.lamda * third_part).transpose()
 
-
-
     def loss(self, v):
 
         first_part = 0
@@ -90,13 +87,13 @@ class Gradient(object):
 
         print('finished loss step')
         print(self.index_of_loss)
-        self.index_of_loss+=1
+        self.index_of_loss += 1
         return first_part + self.lamda*second_part - third_part
 
     def gradient_descent(self):
 
         result = minimize(method='L-BFGS-B', fun=self.loss, x0=self.w_init, jac=self.gradient,
-                          options={'disp': True, 'maxiter': 15, 'factr': 1e2})
+                          options={'disp': True, 'maxiter': 1, 'factr': 1e2})
         print('finished gradient')
         print(result.x)
         return result

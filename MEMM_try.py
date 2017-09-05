@@ -86,7 +86,7 @@ class MEMM:
         print('{}: starting building features from train'.format(time.asctime(time.localtime(time.time()))))
 
         for chrome in self.chrome_list:
-            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150_non\\chr' + chrome + '_label.csv'
 
             with open(training_file, 'r') as training:
 
@@ -144,17 +144,17 @@ class MEMM:
                             # build feature_1 of three tags instances
                             feature_1_key = first_tag + second_tag + current_tag
                             if feature_1_key not in self.feature_1:
-                                self.feature_1['f1' +'_' + feature_1_key] = 1
+                                self.feature_1['f1' + '_' + feature_1_key] = 1
                             else:
-                                self.feature_1['f1' +'_' +feature_1_key] += 1
+                                self.feature_1['f1' + '_' + feature_1_key] += 1
 
                         if 'feature_2' in self.features_combination:
                             # build feature_2 of two tags instances
                             feature_2_key = second_tag + current_tag
                             if feature_2_key not in self.feature_2:
-                                self.feature_2['f2' +'_' +feature_2_key] = 1
+                                self.feature_2['f2' + '_' + feature_2_key] = 1
                             else:
-                                self.feature_2['f2' +'_' +feature_2_key] += 1
+                                self.feature_2['f2' + '_' + feature_2_key] += 1
 
                         if word_in_seq_index > 1:
                             first_word = word_tag_list[word_in_seq_index-2][0]
@@ -166,30 +166,30 @@ class MEMM:
                             # build feature_3 of three words instances
                             if feature_3_key:
                                 if feature_3_key not in self.feature_3:
-                                    self.feature_3['f3' +'_' +feature_3_key] = 1
+                                    self.feature_3['f3' + '_' + feature_3_key] = 1
                                 else:
-                                    self.feature_3['f3' +'_' +feature_3_key] += 1
+                                    self.feature_3['f3' + '_' + feature_3_key] += 1
 
                         if 'feature_4' in self.features_combination:
                             # build feature_4 of amino acids instances
                             if feature_4_key:
                                 if feature_4_key not in self.feature_4:
-                                    self.feature_4['f4' +'_' +feature_4_key] = 1
+                                    self.feature_4['f4' + '_' + feature_4_key] = 1
                                 else:
-                                    self.feature_4['f4' +'_' +feature_4_key] += 1
+                                    self.feature_4['f4' + '_' + feature_4_key] += 1
 
                         if 'feature_5' in self.features_combination:
                             # build feature_5 of stop codon before current word
                             if word_in_seq_index > 2:
                                 zero_word = word_tag_list[word_in_seq_index-3][0]
-                                #first_word = word_tag_list[word_in_seq_index-2][0]
-                                #second_word = word_tag_list[word_in_seq_index-1][0]
+                                # first_word = word_tag_list[word_in_seq_index-2][0]
+                                # second_word = word_tag_list[word_in_seq_index-1][0]
                                 feature_5_key = zero_word + first_word + second_word
                                 if feature_5_key in self.stop_keys:
                                     if feature_5_key not in self.feature_5:
-                                        self.feature_5['f5' +'_' +feature_5_key] = 1
+                                        self.feature_5['f5' + '_' + feature_5_key] = 1
                                     else:
-                                        self.feature_5['f5' +'_' +feature_5_key] += 1
+                                        self.feature_5['f5' + '_' + feature_5_key] += 1
 
                         if 'feature_6' in self.features_combination:
                             # build feature_6 of stop codon after current word
@@ -200,43 +200,35 @@ class MEMM:
                                 feature_6_key = plus_one_word + plus_two_word + plus_three_word
                                 if feature_6_key in self.stop_keys:
                                     if feature_6_key not in self.feature_6:
-                                        self.feature_6['f6' +'_' +feature_6_key] = 1
+                                        self.feature_6['f6' + '_' + feature_6_key] = 1
                                     else:
-                                        self.feature_6['f6' +'_' +feature_6_key] += 1
+                                        self.feature_6['f6' + '_' + feature_6_key] += 1
 
                         if 'feature_7' in self.features_combination:
                             # build feature_7 of start codon before current word
                             if word_in_seq_index > 2:
-                                #zero_word = word_tag_list[word_in_seq_index - 3][0]
+                                # zero_word = word_tag_list[word_in_seq_index - 3][0]
                                 # first_word = word_tag_list[word_in_seq_index-2][0]
                                 # second_word = word_tag_list[word_in_seq_index-1][0]
                                 feature_7_key = zero_word + first_word + second_word
                                 if feature_7_key in self.start_keys:
                                     if feature_7_key not in self.feature_7:
-                                        self.feature_7['f7' +'_' +feature_7_key] = 1
+                                        self.feature_7['f7' + '_' + feature_7_key] = 1
                                     else:
-                                        self.feature_7['f7' +'_' +feature_7_key] += 1
+                                        self.feature_7['f7' + '_' + feature_7_key] += 1
 
                         if 'feature_8' in self.features_combination:
                             # build feature_8 of start codon after current word
                             if len(word_tag_list) - word_in_seq_index > 3:
-                                #plus_one_word = word_tag_list[word_in_seq_index + 1][0]
-                                #plus_two_word = word_tag_list[word_in_seq_index + 2][0]
-                                #plus_three_word = word_tag_list[word_in_seq_index + 3][0]
+                                # plus_one_word = word_tag_list[word_in_seq_index + 1][0]
+                                # plus_two_word = word_tag_list[word_in_seq_index + 2][0]
+                                # plus_three_word = word_tag_list[word_in_seq_index + 3][0]
                                 feature_8_key = plus_one_word + plus_two_word + plus_three_word
                                 if feature_8_key in self.start_keys:
                                     if feature_8_key not in self.feature_8:
-                                        self.feature_8['f8' +'_' +feature_8_key] = 1
+                                        self.feature_8['f8' + '_' + feature_8_key] = 1
                                     else:
-                                        self.feature_8['f8' +'_' +feature_8_key] += 1
-
-
-                        # update words
-                        #zero_word = first_word
-                        #first_word = second_word
-                        #second_word = current_word
-                        #plus_one_word = plus_two_word
-                        #plus_two_word = plus_three_word
+                                        self.feature_8['f8' + '_' + feature_8_key] += 1
 
                         # update tags
                         first_tag = second_tag
@@ -437,12 +429,12 @@ class MEMM:
               .format(time.asctime(time.localtime(time.time())), time.time() - start_time))
 
         # save history_tag_feature_vector to csv
-        #print('writing history_tag_feature_vector to csv')
-        #with open('history_tag_feature_vector.csv', 'w') as csv_file:
+        # print('writing history_tag_feature_vector to csv')
+        # with open('history_tag_feature_vector.csv', 'w') as csv_file:
         #    writer = csv.writer(csv_file)
         #    for key, value in self.history_tag_feature_vector.items():
         #        writer.writerow([key, value])
-        #print('FINISHED- writing history_tag_feature_vector to csv')
+        # print('FINISHED- writing history_tag_feature_vector to csv')
         return
 
     def create_history_tag_feature_vector_train(self):
@@ -452,7 +444,7 @@ class MEMM:
               format(time.asctime(time.localtime(time.time()))))
 
         for chrome in self.chrome_list:
-            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150_non\\chr' + chrome + '_label.csv'
 
             with open(training_file, 'r') as training:
 
@@ -473,8 +465,8 @@ class MEMM:
                     while ',' in word_tag_list:
                         word_tag_list.remove(',')
 
-                    #print("working on sequence {} :".format(sequence_index))
-                    #print(word_tag_list)
+                    # print("working on sequence {} :".format(sequence_index))
+                    # print(word_tag_list)
 
                     # define three first word_tags for some features
                     first_tag = '#'
@@ -507,13 +499,14 @@ class MEMM:
                             plus_three_word = '#'
                             more_than_3 = False
 
-                        indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word, first_word,
-                                                                            second_word,
-                                                                            plus_one_word, plus_two_word, plus_three_word,
+                        indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word,
+                                                                            first_word, second_word, plus_one_word,
+                                                                            plus_two_word, plus_three_word,
                                                                             current_word, current_tag)
-                        self.history_tag_feature_vector_train[(first_tag, second_tag, zero_word, first_word, second_word,
-                                                         plus_one_word, plus_two_word, plus_three_word,
-                                                         current_word), current_tag] = indexes_vector
+                        self.history_tag_feature_vector_train[(first_tag, second_tag, zero_word, first_word,
+                                                               second_word, plus_one_word, plus_two_word,
+                                                               plus_three_word, current_word), current_tag] =\
+                            indexes_vector
                         first_tag = second_tag
                         second_tag = current_tag
                         zero_word = first_word
@@ -525,14 +518,14 @@ class MEMM:
 
                     sequence_index += 1
 
-            #print('finished building history_tag_feature_vector_train in : {}'.format(time.time() - start_time))
-            ## save history_tag_feature_vector_train to csv
-            #print('writing history_tag_feature_vector_train to csv')
-            #with open('history_tag_feature_vector_train.csv', 'w') as csv_file:
+            # print('finished building history_tag_feature_vector_train in : {}'.format(time.time() - start_time))
+            # save history_tag_feature_vector_train to csv
+            # print('writing history_tag_feature_vector_train to csv')
+            # with open('history_tag_feature_vector_train.csv', 'w') as csv_file:
             #    writer = csv.writer(csv_file)
             #    for key, value in self.history_tag_feature_vector_train.items():
             #        writer.writerow([key, value])
-            #print('FINISHED- writing history_tag_feature_vector_train to csv')
+            # print('FINISHED- writing history_tag_feature_vector_train to csv')
 
         return
 
@@ -543,7 +536,7 @@ class MEMM:
               .format(time.asctime(time.localtime(time.time()))))
 
         for chrome in self.chrome_list:
-            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150_non\\chr' + chrome + '_label.csv'
 
             with open(training_file, 'r') as training:
 
@@ -563,8 +556,8 @@ class MEMM:
                     while ',' in word_tag_list:
                         word_tag_list.remove(',')
 
-                    #print("working on sequence {} :".format(sequence_index))
-                    #print(word_tag_list)
+                    # print("working on sequence {} :".format(sequence_index))
+                    # print(word_tag_list)
 
                     # define three first word_tags for some features
                     first_tag = '#'
@@ -586,7 +579,7 @@ class MEMM:
                             word_tag_tuple[1] = word_tag_tuple[1][:1]
 
                         current_word = word_tag_tuple[0]
-                        #current_tag = word_tag_tuple[1]
+                        # current_tag = word_tag_tuple[1]
                         if len(word_tag_list) - word_in_seq_index > 3:
                             plus_one_word = word_tag_list[word_in_seq_index + 1][0]
                             plus_two_word = word_tag_list[word_in_seq_index + 2][0]
@@ -598,13 +591,15 @@ class MEMM:
                             more_than_3 = False
 
                         for possible_tag_of_current_word in self.word_tag_dict[current_word]:
-                            indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word, first_word,
-                                                                            second_word,
-                                                                            plus_one_word, plus_two_word, plus_three_word,
-                                                                            current_word, possible_tag_of_current_word)
-                            self.history_tag_feature_vector_denominator[(first_tag, second_tag, zero_word, first_word, second_word,
-                                                               plus_one_word, plus_two_word, plus_three_word,
-                                                               current_word), possible_tag_of_current_word] = indexes_vector
+                            indexes_vector = self.calculate_history_tag_indexes(first_tag, second_tag, zero_word,
+                                                                                first_word, second_word, plus_one_word,
+                                                                                plus_two_word, plus_three_word,
+                                                                                current_word,
+                                                                                possible_tag_of_current_word)
+                            self.history_tag_feature_vector_denominator[(first_tag, second_tag, zero_word, first_word,
+                                                                         second_word, plus_one_word, plus_two_word,
+                                                                         plus_three_word, current_word),
+                                                                        possible_tag_of_current_word] = indexes_vector
                         first_tag = second_tag
                         second_tag = word_tag_tuple[1]
                         zero_word = first_word
@@ -618,13 +613,13 @@ class MEMM:
 
         print('{}: finished building history_tag_feature_vector_denominator in : {}'
               .format(time.asctime(time.localtime(time.time())), time.time() - start_time))
-            # save history_tag_feature_vector_train to csv
-            #print('writing history_tag_feature_vector_denominator to csv')
-            #with open('history_tag_feature_vector_denominator.csv', 'w') as csv_file:
-            #    writer = csv.writer(csv_file)
-            #    for key, value in self.history_tag_feature_vector_denominator.items():
-            #        writer.writerow([key, value])
-            #print('FINISHED- writing history_tag_feature_vector_denominator to csv')
+        # save history_tag_feature_vector_train to csv
+        # print('writing history_tag_feature_vector_denominator to csv')
+        # with open('history_tag_feature_vector_denominator.csv', 'w') as csv_file:
+        #    writer = csv.writer(csv_file)
+        #    for key, value in self.history_tag_feature_vector_denominator.items():
+        #        writer.writerow([key, value])
+        # print('FINISHED- writing history_tag_feature_vector_denominator to csv')
 
         return
 
@@ -661,7 +656,7 @@ class MEMM:
 
         if 'feature_2' in self.features_combination:
             # feature_2 of two tags instances
-            feature_2_key = 'f2' +'_' + second_tag + current_tag
+            feature_2_key = 'f2' + '_' + second_tag + current_tag
             if feature_2_key in self.feature_2:
                 feature_idx = self.features_vector[feature_2_key]
                 indexes_vector[feature_idx] = 1
@@ -716,5 +711,3 @@ class MEMM:
         else:  # memm
             indexes_vector_zip = csr_matrix(indexes_vector)
             return indexes_vector_zip
-
-

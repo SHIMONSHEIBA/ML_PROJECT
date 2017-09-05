@@ -9,7 +9,7 @@ from Print_and_save_results import print_save_results
 import logging
 
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 class viterbi(object):
     """ Viterbi algorithm for 2-order HMM and MEMM model"""
@@ -158,11 +158,11 @@ class viterbi(object):
                 write_file_name = datetime.now().strftime \
                     (directory + 'file_results\\chr' + chrome + '_resultMEMM_%d_%m_%Y_%H_%M.csv')
                 confusion_file_name = datetime.now().strftime \
-                    (directory + ' confusion_files\\chr' + chrome + '_CMMEMM_%d_%m_%Y_%H_%M.xls')
+                    (directory + 'confusion_files\\chr' + chrome + '_CMMEMM_%d_%m_%Y_%H_%M.xls')
                 seq_confusion_file_name = datetime.now().strftime \
-                    (directory + ' confusion_files\\chr' + chrome + '_sqeCMMEMM_%d_%m_%Y_%H_%M.xls')
+                    (directory + 'confusion_files\\chr' + chrome + '_sqeCMMEMM_%d_%m_%Y_%H_%M.xls')
                 # seq_labels_file_name = 'C:/gitprojects/ML project/samples_small_data/chr1_sample_label.xlsx'
-                seq_labels_file_name = directory + ' sample_labels150\\chr' + chrome + '_sample_label.xlsx'
+                seq_labels_file_name = directory + 'sample_labels150\\chr' + chrome + '_sample_label.xlsx'
                 evaluate_class = print_save_results(self.model, 'memm', self.predict_file, predict_dict, write_file_name,
                                                     confusion_file_name, seq_labels_file_name, seq_confusion_file_name)
                 word_results_dictionary, seq_results_dictionary = evaluate_class.run()
@@ -362,7 +362,7 @@ class viterbi(object):
         return tag_exp_dict[v] / float(sum_denominator)
 
     def write_majority_doc(self, chrome, dict_seq_results, sequence_index):
-        write_file_name = directory + ' majority_vote\\chr' + chrome + '_majority_vote_results_phase'\
+        write_file_name = directory + 'majority_vote\\chr' + chrome + '_majority_vote_results_phase'\
                           + str(self.phase_number) + self.model_type + '.csv'
         with open(write_file_name, 'a') as csv_file:
             writer = csv.writer(csv_file)

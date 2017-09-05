@@ -69,7 +69,10 @@ def main():
     # need to return a dictionary that each seq in chrome_test_list have the first base prediction
     # in the format: {seq_index:base_tag}
     # svm_results - SVM(chrome_train_list, chrome_test_list)
-    NonStructureFeatures_perBase_train_obj = NonStructureFeatures_perBase(majority=True)
+    chrome_train_list_non = [int(chrome) for chrome in chrome_train_list]
+    chrome_test_list_non = [int(chrome) for chrome in chrome_test_list]
+    NonStructureFeatures_perBase_train_obj = NonStructureFeatures_perBase(majority=True, load_data=False)
+    NonStructureFeatures_perBase_train_obj.create_train_test_dataframes(chrome_train_list_non, chrome_test_list_non)
     NonStructureModels = {}
     for clf, name in (
             (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
@@ -82,33 +85,30 @@ def main():
     logging.info('{}: use stop probability is: {}'.format(time.asctime(time.localtime(time.time())), use_stop_prob))
 
     for chrome in chrome_test_list:
-        test_file = directory + 'labels150\\chr' + chrome + '_label.csv'
+        test_file = directory + 'labels150_non\\chr' + chrome + '_label.csv'
         print('{}: Start viterbi HMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))), chrome))
         viterbi_class_hmm = viterbi(hmm_class, 'hmm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False, use_majority2=True)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         hmm_viterbi_result = viterbi_class_hmm.viterbi_all_data(chrome)
-        print('{}: Start viterbi MEMM for chrome: {} phase 1'.\
-            format((time.asctime(time.localtime(time.time()))), chrome))
+        print('{}: Start viterbi MEMM for chrome: {} phase 1'.format((time.asctime(time.localtime(time.time()))),
+                                                                     chrome))
         viterbi_class_memm = viterbi(memm_class, 'memm', data_file=test_file, is_log=False, use_stop_prob=use_stop_prob,
                               phase_number=1, use_majority_vote=False, w=weights, use_majority2=True)
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         memm_viterbi_result = viterbi_class_memm.viterbi_all_data(chrome)
-        print('{}: Start train non-structure classifier for chrome: {}'.\
-            format((time.asctime(time.localtime(time.time()))), chrome))
+        print('{}: Start train non-structure classifier for chrome: {}'.format((time.asctime
+                                                                                (time.localtime(time.time()))), chrome))
         # Train non-structure classifier
         # need to return a dictionary that each seq in chrome_test_list have the first base prediction
         # in the format: {seq_index:base_tag}
         chrome_len = len(memm_viterbi_result.keys())
         NonStructurePredictions = {k: [] for k in range(chrome_len)}
-        NonStructureFeatures_perBase_test_class = \
-            NonStructureFeatures_perBase(is_train=False, chrome_test_list=[chrome],
-                                         train_object=NonStructureFeatures_perBase_train_obj)
         for name, model in NonStructureModels.items():
-            prediction = model.predict(NonStructureFeatures_perBase_test_class.X_test)
-            for sequence_inner_index in range(NonStructureFeatures_perBase_test_class.X_test.shape[0]):
+            prediction = model.predict(NonStructureFeatures_perBase_train_obj.X_test)
+            for sequence_inner_index in range(NonStructureFeatures_perBase_train_obj.X_test.shape[0]):
                 NonStructurePredictions[sequence_inner_index].append(prediction[sequence_inner_index])
 
         most_common_tags_first_base = {}
@@ -195,6 +195,6 @@ if __name__ == "__main__":
     #     print chrome_train_list
     #     chrome_test_list = [str(test_chrome)]
     #     print chrome_test_list
-    chrome_train_list = ['17']
+    chrome_train_list = ['1']
     chrome_test_list = ['17']
     main()

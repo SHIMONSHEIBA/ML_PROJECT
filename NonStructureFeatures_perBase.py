@@ -11,13 +11,13 @@ directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 class NonStructureFeatures_perBase:
-    def __init__(self, majority=False):
-        # chorme to use as training data
-        # self.chrome_list = ['1', '2', '2.1', '2.2', '3', '4', '4.1', '4.2', '4.3', '4.4', '5', '5.1', '6',
-        #                     '7', '7.1', '7.2', '8', '8.1', '9', '9.1', '10', '10.1', '11', '11.1', '12', '12.1', '12.2',
-        #                     '12.3', '13', '13.1', '13.2', '14', '14.1', '14.2', '15', '15.1', '15.2', '15.3', '16',
-        #                     '16.1', '16.2', '17']
-        self.chrome_list = ['1', '2', '2.1', '2.2']
+    def __init__(self, majority=False, load_data=True):
+        self.chrome_list = ['1', '2', '2.1', '2.2', '3', '4', '4.1', '4.2', '4.3', '4.4', '5', '5.1', '6',
+                            '7', '7.1', '7.2', '8', '8.1', '9', '9.1', '10', '10.1', '11', '11.1', '12', '12.1', '12.2',
+                            '12.3', '13', '13.1', '13.2', '14', '14.1', '14.2', '15', '15.1', '15.2', '15.3', '16',
+                            '16.1', '16.2', '17']
+
+        self.chrome_list_not_done = []
         self.majority = majority
         # just for initialize
         self.X_train = ''
@@ -25,8 +25,7 @@ class NonStructureFeatures_perBase:
         self.X_test = ''
         self.Y_test = ''
 
-        features_list = ['feature_word', 'feature_3', 'feature_4', 'feature_5', 'feature_6', 'feature_7',
-                         'feature_8']
+        features_list = ['feature_word', 'feature_3', 'feature_4', 'feature_5', 'feature_6', 'feature_7', 'feature_8']
         logging.info('{}: Features are: {}'
                      .format(time.asctime(time.localtime(time.time())), features_list))
         print('{}: Non structure: Start creating Features (using MEMM)'.format(time.asctime(time.localtime(time.time()))))
@@ -34,41 +33,30 @@ class NonStructureFeatures_perBase:
         logging.info('MEMM for features : {}'.format(features_list))
 
         # just create the feature vector indexes
-        self.NonStructureFeaturesIndexes = MEMM(self.chrome_list, features_list, history_tag_feature_vector=True)
-        self.all_samples_features = self.create_feature_vector()
-        # self.all_samples_features['chrome'].replace \
-        #     ([2.1, 2.2, 4.1, 4.2, 4.3, 4.4, 5.1, 7.1, 7.2, 8.1, 9.1, 10.1, 11.1, 12.1, 12.2, 12.3, 13.1, 13.2, 14.1,
-        #       14.2, 15.1, 15.2, 15.3, 16.1, 16.2], [2, 2, 4, 4, 4, 4, 5, 7, 7, 8, 9, 10, 11, 12, 12, 12, 13, 13, 14, 14,
-        #                                             15, 15, 15, 16, 16], inplace=True)
-        self.all_samples_features['chrome'].replace([2.1, 2.2], [2, 2], inplace=True)
-        #     self.X_train = self.all_samples_features.ix[:, self.all_samples_features.columns != 'IsGen']
-        #     self.Y_train = self.all_samples_features['IsGen']
-        # if not is_train and chrome_test_list is not None:
-        #     self.NonStructureFeaturesIndexes = train_object.NonStructureFeaturesIndexes
-        #     self.all_test_samples_features = self.create_feature_vector(majority=True)
-        #     self.X_test = self.all_test_samples_features.ix[:, self.all_test_samples_features.columns != 'IsGen']
-        #     self.Y_test = self.all_test_samples_features['IsGen']
-        # if is_train and chrome_test_list is not None:
-        #     self.all_test_samples_features = self.create_feature_vector(majority=True)
-        #     self.X_test = self.all_test_samples_features.ix[:, self.all_test_samples_features.columns != 'IsGen']
-        #     self.Y_test = self.all_test_samples_features['IsGen']
-        if not self.majority:
-            for test_chrome in range(1, 2):  #range(1,18)
-                chrome_train_list = [x for x in self.chrome_list if x != str(test_chrome)]
-                chrome_test_list = [str(test_chrome)]
-                logging.info('{}: Train list is: {}, test list is: {}'
-                             .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
-                print('{}: Train list is: {}, test list is: {}'
-                      .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
-                self.create_train_test_dataframes(chrome_train_list, chrome_test_list)
+        if load_data:
+            self.NonStructureFeaturesIndexes = MEMM(self.chrome_list, features_list, history_tag_feature_vector=True)
+            self.all_samples_features = self.create_feature_vector()
+            self.all_samples_features['chrome'].replace \
+                ([2.1, 2.2, 4.1, 4.2, 4.3, 4.4, 5.1, 7.1, 7.2, 8.1, 9.1, 10.1, 11.1, 12.1, 12.2, 12.3, 13.1, 13.2, 14.1,
+                  14.2, 15.1, 15.2, 15.3, 16.1, 16.2], [2, 2, 4, 4, 4, 4, 5, 7, 7, 8, 9, 10, 11, 12, 12, 12, 13, 13, 14, 14,
+                                                        15, 15, 15, 16, 16], inplace=True)
+
+            # self.all_samples_features['chrome'].replace([2.1, 2.2], [2, 2], inplace=True)
+            self.all_samples_features['chrome'] = self.all_samples_features['chrome'].astype(int)
+            self.all_samples_features.to_hdf(directory + 'vectors\\all_features.hdf', key='df', mode='w')
+        else:
+            self.all_samples_features = pd.read_hdf(directory + 'vectors\\all_features.pkl', key='df')
 
     def create_train_test_dataframes(self, chrome_train_list, chrome_test_list):
         train_samples = self.all_samples_features.loc[self.all_samples_features['chrome'].isin(chrome_train_list)]
         if not self.majority:  # not majority: need all samples
             test_samples = self.all_samples_features.loc[self.all_samples_features['chrome'].isin(chrome_test_list)]
         else:  # majority: need only first base prediction
-            test_samples = self.all_samples_features.loc[(self.all_samples_features['word_index'] == '0') &
+            test_samples = self.all_samples_features.loc[(self.all_samples_features['word_index'] == 0) &
                                                          self.all_samples_features['chrome'].isin(chrome_test_list)]
+        print('size of train sample is: {}, test data: {}, all data: {}'.format(train_samples.shape[0],
+                                                                                test_samples.shape[0],
+                                                                                self.all_samples_features.shape[0]))
         # create train data frame - data and labels
         self.X_train = train_samples.drop(['IsGen', 'chrome', 'word_index'], axis=1)
         self.Y_train = train_samples['IsGen']
@@ -81,11 +69,11 @@ class NonStructureFeatures_perBase:
         print('{}: starting building feature vector for chrome_list: {}'.
               format(time.asctime(time.localtime(time.time())), self.chrome_list))
         all_samples_index = 0  # number of samples (bases) in the train/test data --> index of all_samples_features
-        for chrome in self.chrome_list:
+        for chrome in self.chrome_list_not_done:
             print('{}: starting building feature vector for chrome: {}'.
                   format(time.asctime(time.localtime(time.time())), chrome))
             # training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
-            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150_non\\chr' + chrome + '_label.csv'
             # seq_labels_file_name = 'C:\\gitprojects\\ML_PROJECT\\first_base_label\\chr' + chrome + '_first_label.xlsx'
             # seq_label = pd.read_excel(seq_labels_file_name, header=None)
             # seq_label_array = seq_label.as_matrix()
@@ -192,6 +180,7 @@ class NonStructureFeatures_perBase:
             # with open(chrome_vector_file_name, "wb") as f:
             #     writer = csv.writer(f)
             #     writer.writerows(all_samples_features)
+        print('{}: starting loading feature vectors to create data frame'.format(time.asctime(time.localtime(time.time()))))
         for chrome in self.chrome_list:
             chrome_vector = pd.read_csv(directory + 'vectors\\chr' + chrome + '.csv')
             if chrome == '1':
@@ -199,24 +188,23 @@ class NonStructureFeatures_perBase:
             else:
                 all_features = pd.concat([all_features, chrome_vector], ignore_index=True, axis=0)
 
-
-
-                    # for test data and majority: need features just for the first base
-        # headers = [i for i in range(len(indexes_vector)-3)]
-        # headers.append('IsGen')
-        # headers.append('chrome')
-        # headers.append('word_index')
-        # # data = np.array(all_samples_features.values())
-        # all_samples_featuresDF = pd.DataFrame(data=all_samples_features, columns=headers)
         return all_features
 
 
 def main():
-    # NonStructureFeatures_perBase_obj = NonStructureFeatures_perBase(is_train=True, chrome_train_list=chrome_train_list,
-    #                                                                 chrome_test_list=chrome_test_list)
-    NonStructureFeatures_perBase_obj = NonStructureFeatures_perBase(majority=False)
-    classifier = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
-    classifier.ModelsIteration()
+    NonStructureFeatures_perBase_obj = NonStructureFeatures_perBase(majority=False, load_data=False)
+    # chorme to use as training data
+    chrome_list_train_test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    for test_chrome in range(1, 17):
+        chrome_train_list = [x for x in chrome_list_train_test if x != test_chrome]
+        chrome_test_list = [test_chrome]
+        logging.info('{}: Train list is: {}, test list is: {}'
+                     .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
+        print('{}: Train list is: {}, test list is: {}'
+              .format(time.asctime(time.localtime(time.time())), chrome_train_list, chrome_test_list))
+        NonStructureFeatures_perBase_obj.create_train_test_dataframes(chrome_train_list, chrome_test_list)
+        classifier = Classifier(NonStructureFeatures_perBase_obj, use_CV=False)
+        classifier.ModelsIteration()
 
 if __name__ == "__main__":
     logging.getLogger('').handlers = []

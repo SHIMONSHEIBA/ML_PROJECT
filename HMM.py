@@ -5,7 +5,7 @@ import csv
 import numpy as np
 import logging
 
-directory = 'C:\\Users\\Meir\\PycharmProjects\\ML_PROJECT\\'
+directory = 'C:\\gitprojects\\ML_PROJECT\\'
 
 
 class HMM(object):
@@ -87,7 +87,7 @@ class HMM(object):
         print('{}: Start build transition and emission matrices'.format(time.asctime(time.localtime(time.time()))))
         for chrome in self.chrome_list:
             print('{}: Start train on chrome: {}'.format((time.asctime(time.localtime(time.time()))), chrome))
-            training_file = directory + 'labels150\\chr' + chrome + '_label.csv'
+            training_file = directory + 'labels150_non\\chr' + chrome + '_label.csv'
             with open(training_file, 'r') as training:
                 for sequence in training:
                     sequence_index += 1
